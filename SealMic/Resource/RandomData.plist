@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>RoomCovers</key>
+	<array>
+		<string>chatroom_cover_0</string>
+		<string>chatroom_cover_1</string>
+		<string>chatroom_cover_2</string>
+		<string>chatroom_cover_3</string>
+		<string>chatroom_cover_4</string>
+		<string>chatroom_cover_5</string>
+		<string>chatroom_cover_6</string>
+		<string>chatroom_cover_7</string>
+		<string>chatroom_cover_8</string>
+		<string>chatroom_cover_9</string>
+		<string>chatroom_cover_10</string>
+		<string>chatroom_cover_11</string>
+	</array>
+	<key>RoomSubjects</key>
+	<array>
+		<string>融云RongCloud</string>
+		<string>嗨唱屋</string>
+		<string>你耳边的治愈系</string>
+		<string>来自电影里的故事</string>
+		<string>怀旧好声音</string>
+		<string>邻居的耳朵</string>
+		<string>这里有你喜欢的话题</string>
+		<string>你会讲笑话吗</string>
+		<string>真心话大冒险</string>
+		<string>七鬼五二三</string>
+	</array>
+	<key>UserNames</key>
+	<array>
+		<string>Louis</string>
+		<string>Blake</string>
+		<string>Marjorie John</string>
+		<string>Angelo Owen</string>
+		<string>Miriam Jane</string>
+		<string>Miles Shaw</string>
+		<string>Omar Nick</string>
+		<string>Amelia Harold</string>
+		<string>Astrid Dierser</string>
+		<string>Sheila Bellamy</string>
+		<string>Kama Larkin</string>
+		<string>Marshall Ford</string>
+		<string>Rose Emily</string>
+		<string>Bess Petty</string>
+		<string>Ron Lincoln</string>
+		<string>Lester Brown</string>
+		<string>Greg Motley</string>
+		<string>Alva Kitto</string>
+		<string>Vita Bill</string>
+		<string>Hilary Gill</string>
+		<string>Prima Eveline</string>
+		<string>Boyce May</string>
+		<string>Lisa Titus</string>
+		<string>Rita Cook</string>
+		<string>May Occam</string>
+		<string>Merry Austen</string>
+		<string>Jamie Frank</string>
+		<string>Tracy</string>
+		<string>Victoria Paul</string>
+		<string>Arvin Louis</string>
+		<string>Virginia Harry</string>
+		<string>Marlon Judith</string>
+		<string>Yetta Stephen</string>
+		<string>Mick Ruth</string>
+		<string>Glenn Thomas</string>
+		<string>Emma Amelia</string>
+		<string>Avery Fred</string>
+		<string>Lynn Agnes</string>
+		<string>Kama Bart</string>
+		<string>Carr Croft</string>
+		<string>Delia</string>
+		<string>Setlla Powell</string>
+		<string>Lionel Rob</string>
+		<string>Kevin Bloomer</string>
+		<string>Haley Piers</string>
+		<string>Max Harold</string>
+		<string>Vivian Hope</string>
+		<string>Mike Ella</string>
+		<string>Archer Clare</string>
+		<string>Maria Trollpoe</string>
+		<string>Elliot Leigh</string>
+		<string>Emily Hobbes</string>
+		<string>Primo Donne</string>
+		<string>Omar Winifred</string>
+		<string>James Herty</string>
+		<string>Griffith Anna</string>
+		<string>Adela Lynd</string>
+		<string>Nelly</string>
+		<string>Burnell Pollitt</string>
+		<string>Cynthia Richards</string>
+		<string>Miles Norris</string>
+		<string>Rae Wallis</string>
+		<string>Eve Carpenter</string>
+		<string>Vera Herty</string>
+		<string>Tracy Carey</string>
+		<string>Chasel Sidney</string>
+		<string>Judy Back</string>
+		<string>Elva Dick</string>
+		<string>Bridget Esther</string>
+		<string>Clark Webb</string>
+		<string>Len Lucius</string>
+		<string>Eileen Palmer</string>
+		<string>Boris Ruth</string>
+		<string>Jean Van</string>
+		<string>Kristin Crofts</string>
+		<string>Judith Joe</string>
+		<string>Gale Woolf</string>
+		<string>Simon Wild</string>
+		<string>Maurice Nora</string>
+		<string>Isaac Ingersoll</string>
+		<string>Bob Bert</string>
+		<string>Regan Gracie</string>
+		<string>Ophelia Pope</string>
+		<string>Duke Stowe</string>
+		<string>Ivan Bill</string>
+		<string>Elsa</string>
+		<string>Nat Lucy</string>
+		<string>Giles</string>
+		<string>Elma</string>
+		<string>Mick Aly</string>
+		<string>Erin</string>
+		<string>Alva Gill</string>
+		<string>Fanny</string>
+		<string>Mavis</string>
+		<string>Larry Ann</string>
+		<string>Antonio</string>
+		<string>Nick Nell</string>
+		<string>Kitty Ernest</string>
+		<string>Peter Delia</string>
+		<string>Vic</string>
+	</array>
+</dict>
+</plist>

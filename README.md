@@ -1,5 +1,12 @@
 # SealMic-iOS  
 本文档介绍了 SealMic 的整体框架设计和核心流程，为开发者了解 SealMic 的主要功能提供指导性说明。[体验 SealMic](https://www.rongcloud.cn/download/demo) 。
+
+
+## 背景介绍
+SealMic 展示了如何通过融云 RTCLib SDK 实现音频社交功能。  
+
+* **RTCLib SDK : 融云实时音视频 SDK**
+
 ## 前期准备
 
 1. [注册融云开发者](https://www.rongcloud.cn)，创建应用后获取 APPKey。
@@ -13,13 +20,6 @@
 4. 服务部署完毕之后，请分别修改源码 `APPKey`,`BASE_URL` 为您自己的
 
 	参见源码中 `AppDelegate.m`,`HTTPUtility.m`，其中 `APPKey 和 BASE_URL 为必填项`
-
-## 背景介绍
-SealMic 展示了如何通过融云 IM SDK 和 RTC SDK 实现音频社交功能。  
-
-* **IM SDK : 融云 IM 即时通讯 SDK**;
-
-* **RTC SDK : 融云实时音视频 SDK**
 
 ## 代码目录介绍  
 iOS 端整体目录结构主要由 Sections，Services，Util，Resources 四个部分组成。

@@ -102,6 +102,6 @@ SealMic 主要由两个页面构成：语音聊天室列表页和语音聊天室
 
 
 ## 文档链接
-* 关于 iOS IM 即时通讯 SDK 的 [开发指南https://www.rongcloud.cn/docs/ios.html]()
+* 关于 iOS IM 即时通讯 SDK 的 [开发指南](https://www.rongcloud.cn/docs/ios.html)
 * 关于 iOS 音视频通讯 SDK 的 [开发指南](https://www.rongcloud.cn/docs/ios_rtclib.html)
 

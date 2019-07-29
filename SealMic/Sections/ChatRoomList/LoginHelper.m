@@ -40,7 +40,7 @@
     } error:^(ErrorCode code) {
         SealMicLog(@"login classroom error:%@",@(code));
         if(self.delegate && [self.delegate respondsToSelector:@selector(roomDidOccurError:)]){
-            [self.delegate roomDidOccurError:MicLocalizedNamed(@"LoginFailure")];
+            [self.delegate roomDidOccurError:code];
         }
     }];
 }
@@ -54,7 +54,7 @@
         [self joinRongRTCRoom];
     } error:^(ErrorCode code) {
         if(self.delegate && [self.delegate respondsToSelector:@selector(roomDidOccurError:)]){
-            [self.delegate roomDidOccurError:MicLocalizedNamed(@"CreateRoomFailure")];
+            [self.delegate roomDidOccurError:code];
         }
     }];
 }
@@ -68,7 +68,10 @@
         [self joinRongRTCRoom];
     } error:^(ErrorCode code) {
         if(self.delegate && [self.delegate respondsToSelector:@selector(roomDidOccurError:)]){
-//            [self.delegate roomDidOccurError:MicLocalizedNamed(@"JoinRoomFailure")];
+            if(code == ErrorCodeParameterError) {
+                code = ErrorCodeRoomNotExist;
+            }
+            [self.delegate roomDidOccurError:code];
         }
     }];
 }
@@ -103,7 +106,7 @@
             dispatch_main_async_safe(^{
                 SealMicLog(@"IM connect error");
                 if(weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(roomDidOccurError:)]){
-//                    [weakSelf.delegate roomDidOccurError:MicLocalizedNamed(@"ConnectIMFailure")];
+                    [weakSelf.delegate roomDidOccurError:ErrorCodeIMConnectFailure];
                 }
             });
         }
@@ -111,7 +114,7 @@
         SealMicLog(@"connect im token incorrect");
         dispatch_main_async_safe(^{
             if(weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(roomDidOccurError:)]){
-                [weakSelf.delegate roomDidOccurError:MicLocalizedNamed(@"IMTokenIncorrect")];
+                [weakSelf.delegate roomDidOccurError:ErrorCodeIMTokenError];
             }
         });
     }];
@@ -126,7 +129,7 @@
         SealMicLog(@"join rtc room error:%@",@(code));
         dispatch_main_async_safe(^{
             if(self.delegate && [self.delegate respondsToSelector:@selector(roomDidOccurError:)]){
-                [self.delegate roomDidOccurError:MicLocalizedNamed(@"JoinRTCRoomFailure")];
+                [self.delegate roomDidOccurError:code];
             }
         });
     }];
@@ -146,7 +149,7 @@
         SealMicLog(@"joinIMChatRoom error:%d",errCode);
         dispatch_main_async_safe(^{
             if(self.delegate && [self.delegate respondsToSelector:@selector(roomDidOccurError:)]){
-                [self.delegate roomDidOccurError:MicLocalizedNamed(@"JoinIMChatRoomFailure")];
+                [self.delegate roomDidOccurError:ErrorCodeIMChatRoomJoinFailure];
             }
         });
     }];
@@ -224,7 +227,7 @@
         return YES;
     }else{
         if(self.delegate && [self.delegate respondsToSelector:@selector(roomDidOccurError:)]){
-//            [self.delegate roomDidOccurError:MicLocalizedNamed(@"IMUnconnected")];
+            [self.delegate roomDidOccurError:ErrorCodeIMChatRoomJoinFailure];
         }
         if (self.imToken.length > 0){
             [self connectIM];

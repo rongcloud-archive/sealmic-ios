@@ -67,3 +67,6 @@
 "LoadHistroyDatFailure"="加载房间列表失败";
 "PleaseInputRoomName"="请输入房间名称";
 "PleaseSpeakSomething"="说点什么吧...";
+"RoomNotExist"="该房间不存在了";
+"Confirm"="确认";
+"CurrentVersion"="当前版本号是 %@";

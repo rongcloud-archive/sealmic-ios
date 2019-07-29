@@ -368,7 +368,7 @@
         [self.chatAreaView.extensionView reloadExtensionView];
     } error:^(ErrorCode code) {
         dispatch_main_async_safe(^{
-            [self.view showHUDMessage:MicLocalizedNamed(@"GetRoomInfoFailure")];
+//            [self.view showHUDMessage:MicLocalizedNamed(@"GetRoomInfoFailure")];
         });
         SealMicLog(@"reloadRoomInfo,code = %ld",(long)code);
     }];
@@ -384,7 +384,7 @@
     } error:^(ErrorCode code) {
         self.seatView.userInteractionEnabled = YES;
         dispatch_main_async_safe(^{
-            [self.view showHUDMessage:MicLocalizedNamed(@"JoinMicFailure")];
+//            [self.view showHUDMessage:MicLocalizedNamed(@"JoinMicFailure")];
         });
         SealMicLog(@"抢麦失败");
     }];
@@ -398,7 +398,7 @@
     }error:^(ErrorCode code) {
         self.seatView.userInteractionEnabled = YES;
         dispatch_main_async_safe(^{
-            [self.view showHUDMessage:MicLocalizedNamed(@"ChangeMicFailure")];
+//            [self.view showHUDMessage:MicLocalizedNamed(@"ChangeMicFailure")];
         });
         SealMicLog(@"跳麦失败");
     }];
@@ -410,7 +410,7 @@
         [self reloadRoomInfo];
     } error:^(ErrorCode code) {
         dispatch_main_async_safe(^{
-            [self.view showHUDMessage:MicLocalizedNamed(@"LeaveMicFailure")];
+//            [self.view showHUDMessage:MicLocalizedNamed(@"LeaveMicFailure")];
         });
         SealMicLog(@"下麦失败");
     }];

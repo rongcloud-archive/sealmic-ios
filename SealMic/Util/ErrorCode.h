@@ -28,7 +28,10 @@ typedef NS_ENUM(NSInteger, ErrorCode) {
     ErrorCodeMicPositionLocked = 25,
     ErrorCodeRoomOverMaxCount = 26,
     ErrorCodeMemberOverMaxCount = 27,
-    ErrorCodeHTTPFailure = 99
+    ErrorCodeHTTPFailure = 99,
+    //app
+    ErrorCodeIMConnectFailure = 1000,
+    ErrorCodeIMChatRoomJoinFailure = 1001,
 };
 
 #endif /* ErrorCode_h */

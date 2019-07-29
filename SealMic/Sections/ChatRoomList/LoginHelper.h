@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, LogoutChatRoomType) {
 @protocol LoginHelperDelegate <NSObject>
 @optional
 - (void)roomDidLogin;
-- (void)roomDidOccurError:(NSString *)describe;
+- (void)roomDidOccurError:(ErrorCode)errCode;
 - (void)roomDidCreateOrJoin;
 @end
 

@@ -39,8 +39,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    self.title = MicLocalizedNamed(@"ChatRoomListTitle");
+    [self addTitleView];
     [self addSubviews];
     [self.hud showAnimated:YES];
 }
@@ -71,6 +70,24 @@
     [self.view addSubview:self.hud];
 }
 
+- (void)addTitleView{
+    UILabel *titleView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, UIScreenWidth, 64)];
+    titleView.font = [UIFont boldSystemFontOfSize:18];
+    titleView.textAlignment = NSTextAlignmentCenter;
+    titleView.text = MicLocalizedNamed(@"ChatRoomListTitle");
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapNaviTitle)];
+    tap.numberOfTapsRequired = 2;
+    [titleView addGestureRecognizer:tap];
+    titleView.userInteractionEnabled = YES;
+    self.navigationItem.titleView = titleView;
+}
+
+- (void)didTapNaviTitle{
+    NSDictionary *bundleDic = [[NSBundle mainBundle] infoDictionary];
+    NSString *version = [bundleDic objectForKey:@"CFBundleShortVersionString"];
+    [self.view showHUDMessage:[NSString stringWithFormat:MicLocalizedNamed(@"CurrentVersion"),version]];
+}
+
 - (void)loadHistoryData {
     [[ClassroomService sharedService] getRoomList:^(NSArray<RoomInfo *> * _Nonnull roomList) {
         self.dataArray = [roomList copy];
@@ -87,7 +104,7 @@
     } error:^(ErrorCode code) {
         NSLog(@"loadHistoryData failure: %ld", (long)code);
         dispatch_main_async_safe(^{
-            [self.view showHUDMessage:MicLocalizedNamed(@"LoadHistroyDatFailure")];
+            [self.view showHUDMessage:@""];//MicLocalizedNamed(@"LoadHistroyDatFailure")];
         });
         [self.collectionView.mj_header endRefreshing];
     }];
@@ -111,8 +128,13 @@
     [self pushChatRoomVC];
 }
 
-- (void)roomDidOccurError:(NSString *)describe {
-    [self.view showHUDMessage:describe];
+- (void)roomDidOccurError:(ErrorCode)errCode {
+    [self.hud hideAnimated:YES];
+    NSLog(@"roomDidOccurError : %@", @(errCode));
+//    [self.view showHUDMessage:describe];
+    if(errCode == ErrorCodeRoomNotExist) {
+        [self showAlertAndRefreshRoomList];
+    }
 }
 
 #pragma mark - UICollectionViewDelegate
@@ -148,6 +170,14 @@
 - (void)pushChatRoomVC{
     ChatRoomController *chatRoomVC = [[ChatRoomController alloc] init];
     [self.navigationController pushViewController:chatRoomVC animated:YES];
+}
+
+- (void)showAlertAndRefreshRoomList {
+    UIAlertController *ac = [UIAlertController alertControllerWithTitle:nil message:MicLocalizedNamed(@"RoomNotExist") preferredStyle:UIAlertControllerStyleAlert];
+    [ac addAction:[UIAlertAction actionWithTitle:MicLocalizedNamed(@"Confirm") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self loadHistoryData];
+    }]];
+    [self presentViewController:ac animated:YES completion:nil];
 }
 
 #pragma mark - getter or setter

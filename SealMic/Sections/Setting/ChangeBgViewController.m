@@ -70,7 +70,7 @@
         [self back];
     } error:^(ErrorCode code) {
         dispatch_main_async_safe(^{
-            [self.view showHUDMessage:MicLocalizedNamed(@"ChangeBackgroundFailure")];
+//            [self.view showHUDMessage:MicLocalizedNamed(@"ChangeBackgroundFailure")];
         });
         SealMicLog(@"更换背景失败: %@", @(code));
     }];

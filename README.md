@@ -1,7 +1,6 @@
 # SealMic-iOS  
 本文档介绍了 SealMic 的整体框架设计和核心流程，为开发者了解 SealMic 的主要功能提供指导性说明。[体验 SealMic](https://www.rongcloud.cn/download/demo) 。
 
-
 ## 背景介绍
 SealMic 展示了如何通过融云 RTCLib SDK 实现音频社交功能。  
 
@@ -9,7 +8,7 @@ SealMic 展示了如何通过融云 RTCLib SDK 实现音频社交功能。
 
 ## 前期准备
 
-1. [注册融云开发者](https://www.rongcloud.cn)，创建应用后获取 APPKey。
+1. [注册融云开发者](https://developer.rongcloud.cn/signup/?utm_source=demogithub&utm_term=demosign)，创建应用后获取 APPKey。
 
 2. 开通音视频服务。[查看音视频计费明细](https://www.rongcloud.cn/docs/call.html#billing)
 

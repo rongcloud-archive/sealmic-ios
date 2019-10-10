@@ -19,6 +19,23 @@ SealMic 展示了如何通过融云 RTCLib SDK 实现音频社交功能。
 4. 服务部署完毕之后，请分别修改源码 `APPKey`,`BASE_URL` 为您自己的
 
 	参见源码中 `AppDelegate.m`,`HTTPUtility.m`，其中 `APPKey 和 BASE_URL 为必填项`
+5. 运行 SealMic-iOS
+
+    SealMic-iOS 是用 cocoaPods 管理融云 SDK 库和其他第三方库，下载完源码后，按照下面步骤操作
+
+  （1）终端进入 Podfile 目录
+
+  （2）更新本地 CocoaPods 的本地仓库，终端执行下面命令
+
+   ```
+  $ pod repo update
+  ```
+  （3）下载 Podfile 中的依赖库，终端执行下面命令
+
+  ```
+  $ pod install
+  ```
+
 
 ## 代码目录介绍  
 iOS 端整体目录结构主要由 Sections，Services，Util，Resources 四个部分组成。

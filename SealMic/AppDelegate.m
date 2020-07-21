@@ -22,15 +22,28 @@
 #endif
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     [self.window makeKeyAndVisible];
-    [self updateIfNeeded];
-    [self visitorLogin];
-    [self addNotificationObserver];
     
     RCMicRoomListViewController *roomListVC = [[RCMicRoomListViewController alloc] init];
     UINavigationController *rootNC = [[UINavigationController alloc] initWithRootViewController:roomListVC];
     rootNC.navigationBar.hidden = YES;
     self.window.rootViewController = rootNC;
+    
+    [self checkEnvironment];
+    [self updateIfNeeded];
+    [self visitorLogin];
+    [self addNotificationObserver];
+    
     return YES;
+}
+
+- (void)checkEnvironment {
+    if ([RCMicHTTPUtility demoServer].length == 0) {
+        UIAlertController *tipAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"运行前请先将您应用的相关环境填写到 RCMicMacro 头文件中，否则无法正常使用" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"我知道了" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        }];
+        [tipAlert addAction:confirmAction];
+        [self.window.rootViewController presentViewController:tipAlert animated:YES completion:nil];
+    }
 }
 
 - (void)updateIfNeeded {

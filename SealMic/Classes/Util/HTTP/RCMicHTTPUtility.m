@@ -171,6 +171,10 @@ static AFHTTPSessionManager *manager;
 }
 
 + (NSString *)demoServer {
-    return [BASE_URL substringToIndex:BASE_URL.length - 3];
+    if (BASE_URL.length > 0) {
+        return [BASE_URL substringToIndex:BASE_URL.length - 3];
+    } else {
+        return nil;
+    }
 }
 @end

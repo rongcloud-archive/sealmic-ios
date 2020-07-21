@@ -1,6 +1,6 @@
-SealMic/DerivedData
-SealMic/Pods
-SealMic/Podfile.lock
-SealMic/SealMic.xcodeproj/xcuserdata
-SealMic/SealMic.xcodeproj/project.xcworkspace/xcuserdata
-SealMic/SealMic.xcworkspace/xcuserdata
+DerivedData
+Pods
+Podfile.lock
+SealMic.xcodeproj/xcuserdata
+SealMic.xcodeproj/project.xcworkspace/xcuserdata
+SealMic.xcworkspace/xcuserdata

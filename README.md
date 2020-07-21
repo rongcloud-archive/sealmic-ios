@@ -14,7 +14,7 @@
 
 * 需要到融云开发者后台注册并创建应用：[融云官网](https://www.rongcloud.cn)
 * 创建应用后用获取到的 appkey 填到`RCMicMacro`文件中的`#define APPKey`对应位置
-* 参考 demoServer 源码部署 SealMic 相关服务，部署完成后将服务地址填到`RCMicMacro `文件中的`#define BASE_URL`对应位置
+* 参考 [demoServer](https://github.com/rongcloud/sealmic-server.git) 源码部署 SealMic 相关服务，部署完成后将服务地址填到`RCMicMacro `文件中的`#define BASE_URL`对应位置
 
 <h2 id='3'>代码运行</h2>
 

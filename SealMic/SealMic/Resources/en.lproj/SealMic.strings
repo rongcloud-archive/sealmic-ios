@@ -1,0 +1,197 @@
+/*
+  SealMic.strings
+  SealMic
+
+  Created by lichenfeng on 2020/5/21.
+  Copyright © 2020 rongcloud. All rights reserved.
+*/
+
+//版本升级
+"update_title"="New version";
+"update_cancel"="Cancel";
+"update_agree"="Upgrade";
+
+//房间列表
+"roomList_title"="Seal Mic";
+"roomList_login"="Login";
+"roomList_create"="Create room";
+"roomList_current_version"="Current version info";
+
+//创建房间
+"createRoom_navigation_title"="Seal Mic";
+"createRoom_ok"="OK";
+"createRoom_name_placeholder"="Input name";
+"createRoom_roomTheme_Title"="Room theme";
+"createRoom_name_invalid"="Name too long!";
+
+//房间
+"room_join"="Join room";
+"room_join_failed"="Join room failed";
+"room_participant_host"="主";
+"room_participant_host_placeholder"="Host";
+"room_participant_placeholder"="Mic";
+"room_participant_onlineCount"="Online";
+"room_gift_giving_button"="Give";
+"room_alert_takeover"="want to take over host mic";
+"room_alert_refuse"="Refuse";
+"room_alert_agree"="Agree";
+"room_alert_transferHost"="want to transfer host mic to you";
+"room_tip_noresponse"="No response";
+"room_tip_refuse"="You are refused";
+"room_kickout"="You were kicked out by the host";
+"room_broadcast_at"="at";
+"room_broadcast_room"="room give";
+"room_recall_failed"="Recall failed";
+"room_banned_alert"="You are banned!";
+
+//登录
+"login_button"="Login";
+"phone_failed"="Error phone number";
+"enter_phone_number"="Input phone number";
+"enter_verification_code"="Input verification code";
+"verification_code"="Verify";
+"another_login_alert"="You have been kicked out by other Client";
+"another_login_agree"="Ensure";
+
+//RTC monitor
+"chat_data_excel_tunnelname"="通道名称";
+"chat_data_excel_kbps"="码率";
+"chat_data_excel_delay"="音频/视频往返延时(ms)";
+"chat_data_excel_userid"="用户Id";
+"chat_data_excel_Codec"="Codec";
+"chat_data_excel_lossrate"="丢包率%";
+"chat_data_excel_send"="发送";
+"chat_data_excel_receive"="接收";
+"chat_data_excel_local"="本地";
+"chat_data_excel_audio_send"="音频发送";
+"chat_data_excel_audio_receive"="音频接收";
+"network_detection"="网络探测";
+"participants"="与会者";
+
+//混音/变声/礼物
+"overdub_none"="None";
+"overdub_sound_card"="Sound";
+"overdub_nature"="Nature";
+"overdub_railway_station"="Station";
+"overdub_market"="Mall";
+"overdub_airport"="Airport";
+"change_sound"="Exchange";
+"original_sound"="Original";
+"female_voice"="Female";
+"male_voice"="Male";
+"neutral"="Neutral";
+"robot"="Robot";
+"childlike_voice"="Childlike";
+"m_a_view"="Participant";
+"please_choose_gift"="Select a gift first!";
+"lack_of_material"="NO material!";
+"along_sound"="Accompanying sound";
+"gift"="Gift";
+"lack_microphone"="Please turn on the microphone first!";
+
+//设置列表
+"use_the_receiver"="Use receiver";
+"turn_on_debug_mode"="Debug model";
+"allow_the_audience_to_join"="Free join room";
+"allow_the_audience_free_access_to_the_mic"="Free join Mic";
+"seting"="Setting";
+"failed_to_get_room_information"="Get room info error!";
+
+
+//操作弹框列表
+"host"="Host";
+"host_mike"="Host mic";
+"audience"="Audince";
+"setup_failed"="Set failed!";
+"dialog_send_message"="Send message";
+"dialog_ranking_mic"="Apply";
+"dialog_takeOver_Host"="Take over";
+"dialog_exit_mic"="Leave";
+"dialog_open_mic"="Open mic";
+"dialog_close_mic"="Close mic";
+"dialog_transferHost"="Transfer to";
+"dialog_kick_user_out"="Kicked out";
+"dialog_participant_lock"="Lock";
+"dialog_participant_unlock"="Unlock";
+"dialog_invitation_participant"="Invite";
+"dialog_invitation_connect_participant"="Invite user";
+"dialog_invitation_user_banned"="Banned";
+"dialog_invitation_delete_message"="Recall";
+"dialog_giving_gift"="Give a gift";
+"dialog_location_mic"="mic";
+"dialog_location_mic_lock"="mic(locked)";
+"dialog_location_mic_management" = "mic management";
+
+"dialog_gift_smile_face"="笑脸";
+"dialog_gift_ice_cream"="冰激凌";
+"dialog_gift_airticket"="机票";
+"dialog_gift_car"="爱心车";
+"dialog_gift_honey"="蜂蜜";
+"dialog_gift_savingpot"="存钱罐";
+"dialog_gift_treasurebox"="宝箱";
+"dialog_gift_roadster"="豪华跑车";
+
+//弹框分页列表
+"dialog_online_list"="Online";
+"dialog_ranking_mic_list"="Applied";
+"dialog_Banned_list"="Banned";
+"dialog_unban_failed"="Remove failed!";
+"agree_connect_fail"="Operation failed!";
+"refused_connect_fail"="Operation failed!";
+"dialog_kicked_out"="Kick";
+"dialog_banned"="Ban";
+"dialog_connect"="Invite";
+"dialog_connect"="Invite";
+"dialog_unlock"="Relief";
+"connection_mic"="Agree";
+"refuse_connection_mic"="Refuse";
+
+//公告弹框
+"announcement_title"="公告";
+"announcement_know"="知道了";
+
+//请求相关提示
+"http_failed"="Request failed";
+"http_param_illegal"="Param illegal";
+"http_serverError"="Server error";
+"http_request_param_error"="Param illegal";
+"http_invalid_auth"="Invalid auth info";
+"http_access_denied"="Access denied";
+"http_request_invalid"="Bad request";
+"http_getToken_error"="Get token error";
+//短信
+"http_sendCode_overFrequency"="Over frequency";
+"http_sendCode_failed"="Send failed";
+"http_sendCode_invalidPhonenumber"="Invalid number";
+"http_codeNotSend"="Verification not send";
+"http_CodeInvalid"="Verification invalid";
+"http_codeEmpty"="Empty code";
+//房间
+"http_createRoom_failed"="Room create failed";
+"http_roomDestroy"="Room has been destroyed";
+"http_userId_sizeExceed"="Count exceed";
+"http_addBlock_failed"="Remove failed";
+"http_userNotInRoom"="User not in room";
+"http_userAlreadyInMic"="User has on mic";
+"http_userHasApplied"="User has applied";
+"http_userNotApplied"="User not applied";
+"http_userNotInMic"="User not on mic";
+"http_mic_null"="No empty mic";
+"http_alreadyHost"="You have been host";
+"http_transfer_expired"="Transfer expired";
+"http_gagUser_failed"="Ban failed";
+"http_takeover_expired"="Take over expired";
+"http_room_locked"="Room is locked";
+"http_noNewVersion"="No new version";
+
+//房间麦位转换相关错误提示
+"room_joinRTC_failed"="Join RTC room failed";
+"room_joinIM_failed"="Join IM room failed ";
+"room_leaveRTC_failed"="Leave RTC room failed";
+"room_publishStream_failed"="Publish stream failed";
+"room_getParticipantInfo_failed"="Get mic info failed";
+"room_subscribeStream_failed"="Subscribe stream failed";
+"room_unsubscribeStream_failed"="Unsubscribe stream failed";
+"room_setSpeakingState_failed"="Set speaking state failed";
+"room_publishOrSubscribeStream_failed"="Publish or subscribe stream failed";
+

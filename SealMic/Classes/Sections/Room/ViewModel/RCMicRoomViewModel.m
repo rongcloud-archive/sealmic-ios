@@ -16,7 +16,7 @@
 
 /// 麦位更新相关类型
 typedef NS_ENUM(NSInteger, ParticipantChangeType) {
-    ParticipantChangeTypeInit = 0,//初识类型（刚加入房间时拉取 KV）
+    ParticipantChangeTypeInit = 0,//初始类型（刚加入房间时拉取 KV）
     ParticipantChangeTypeUp,//正常上麦
     ParticipantChangeTypeDown,//正常下麦
     ParticipantChangeTypeAudinceTakeOver,//观众接管主持麦位
@@ -372,7 +372,7 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
                 RCMicMainThread(^{
                     self.takeOverHostRequest ? self.takeOverHostRequest(takeOverMessage.operatorName, takeOverMessage.operatorId) : nil;
                 })
-            } else if (self.role == RCMicRoleType_Participant && takeOverMessage.type != RCMicTakeOverHostMessageTypeRequest) {
+            } else if (self.role != RCMicRoleType_Host && takeOverMessage.type != RCMicTakeOverHostMessageTypeRequest) {
                 //参会者收到主持人的响应时
                 RCMicMainThread(^{
                     BOOL result = takeOverMessage.type == RCMicTakeOverHostMessageTypeResponseAccept ? YES : NO;
@@ -531,6 +531,8 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
         [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId success:^(RCRTCRoom * _Nonnull room) {
             weakSelf.room = room;
             weakSelf.room.delegate = self;
+            //注意：由于此 demo 中用户发言状态通过聊天室 KV 设置时会有消息产生，所以当房间内长时间没有用户手动发送消息时聊天室也不会被销毁
+            //但是如果实际项目中没有使用 KV 相关功能频繁发送消息，就需要在加入成功后开启个定时器，每隔几分钟向房间内发送一条保活消息，防止房间内用户只通过音视频沟通但是 IM 聊天室由于长时间没有消息产生被服务销毁
             //订阅房间中的音频流
             NSMutableArray *streamArray = [NSMutableArray array];
             for (RCRTCRemoteUser *user in room.remoteUsers) {
@@ -690,26 +692,6 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 }
 
 #pragma mark - 直播延迟相关
-- (void)updateRoomStatisticalInfo:(RCRTCStatisticalForm *)form {
-    NSInteger delay = 0;
-    if (self.role == RCMicRoleType_Audience) {
-        for (RCRTCStreamStat *status in form.recvStats) {
-            if ([status.mediaType isEqualToString:RongRTCMediaTypeAudio]) {
-                delay = status.rtt;
-            }
-        }
-    } else {
-        for (RCRTCStreamStat *status in form.sendStats) {
-            if ([status.mediaType isEqualToString:RongRTCMediaTypeAudio]) {
-                delay = status.rtt;
-            }
-        }
-    }
-    RCMicMainThread(^{
-        self.delayInfoChanged ? self.delayInfoChanged(delay) : nil;
-    })
-}
-
 - (void)updateDebugInfo:(RCRTCStatisticalForm *)form {
     NSMutableArray *bitrateArray = [NSMutableArray new];
     NSMutableArray *localDIArray = [NSMutableArray array];
@@ -811,7 +793,9 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
         }
     }
     //更新直播延迟信息
-    [self updateRoomStatisticalInfo:form];
+    RCMicMainThread(^{
+        self.delayInfoChanged ? self.delayInfoChanged(form.rtt) : nil;
+    })
     if (self.debugDisplay) {
         [self updateDebugInfo:form];
     }

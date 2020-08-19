@@ -117,7 +117,6 @@
 }
 
 - (void)microphoneEnable:(BOOL)enable {
-    RCMicLog(@"set microphone enable:%@", enable ? @"YES" : @"NO");
     [[RCRTCEngine sharedInstance].defaultAudioStream setMicrophoneDisable:!enable];
 }
 

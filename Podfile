@@ -12,6 +12,6 @@ target 'SealMic' do
   pod 'Masonry', '~> 1.1.0'
   pod 'MJRefresh', '~> 3.4.3'
   pod 'MBProgressHUD', '~> 1.2.0'
-  pod 'RongRTCLib', '~> 4.0.1'
+  pod 'RongRTCLib', '~> 4.0.1.1'
   pod 'Bugly', '~> 2.5.5'
 end

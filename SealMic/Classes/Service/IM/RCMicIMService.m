@@ -31,6 +31,10 @@ static RCMicIMService *imService = nil;
 }
 
 - (void)initRCIM {
+    //私有云导航配置
+    if (Navi_URL.length > 0) {
+        [[RCIMClient sharedRCIMClient] setServerInfo:Navi_URL fileServer:nil];
+    }
     [[RCIMClient sharedRCIMClient] setLogLevel:RC_Log_Level_Verbose];
     [[RCIMClient sharedRCIMClient] initWithAppKey:APPKey];
     [[RCIMClient sharedRCIMClient] setRCConnectionStatusChangeDelegate:self];

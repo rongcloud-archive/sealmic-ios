@@ -16,7 +16,7 @@
 #define APPKey @""//此处必填您的 app key
 #define BASE_URL @""//此处必填您的 demo server 地址
 #define BuglyKey @""//此处选填您应用的 buglyKey
-
+#define Navi_URL @""//此处填写私有云导航地址，公有云用户不需要配置
 //屏幕宽度等于逻辑分辨率 320 pt 认定为最小屏幕 iPhoneSE / 5 / 5c / 4 /3gs .....
 #define RCMicScreenWidthEqualTo320 RCMicScreenWidth == 320
 #define RCMicScreenWidth       [UIScreen mainScreen].bounds.size.width

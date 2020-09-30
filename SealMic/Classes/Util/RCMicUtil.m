@@ -85,14 +85,32 @@
     NSDictionary *resourceDict = [RCMicUtil randomResource];
     NSArray *portraitArray = resourceDict[@"Portrait"];
     NSInteger portraitIndex = arc4random()%portraitArray.count;
-    return [[RCMicHTTPUtility demoServer] stringByAppendingString:portraitArray[portraitIndex]];
+    return [[self formatServerAddress] stringByAppendingString:portraitArray[portraitIndex]];
 }
 
 + (NSString *)randomRoomTheme {
     NSDictionary *resourceDict = [RCMicUtil randomResource];
     NSArray *themeArray = resourceDict[@"RoomTheme"];
     NSInteger themeIndex = arc4random()%themeArray.count;
-    return [[RCMicHTTPUtility demoServer] stringByAppendingString:themeArray[themeIndex]];
+    return [[self formatServerAddress] stringByAppendingString:themeArray[themeIndex]];
+}
+
++ (NSString *)formatServerAddress {
+    NSString *address = [RCMicHTTPUtility demoServer];
+    
+    if (address.length > 0) {
+        if ([address hasSuffix:@"api/"]) {
+            return [address substringToIndex:address.length - 4];
+        } else if ([address hasSuffix:@"api"]) {
+            return [address substringToIndex:address.length - 3];
+        } else if ([address hasSuffix:@"/"]) {
+            return address;
+        } else {
+            return [address stringByAppendingString:@"/"];
+        }
+    } else {
+        return nil;
+    }
 }
 
 + (NSData *)secureArchivedDataWithObject:(id<NSSecureCoding>)object {

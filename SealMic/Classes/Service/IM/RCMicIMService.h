@@ -83,6 +83,13 @@ FOUNDATION_EXPORT NSString *const RCMicRecallMessageNotification;
 - (void)addMessageHandleDelegate:(id<RCMicMessageHandleDelegate>)delegate;
 
 /**
+ * 添加聊天室 KV 变化代理
+ *
+ * @param delegate 代理对象
+ */
+- (void)addKVStatusChangedDelegate:(id<RCChatRoomKVStatusChangeDelegate>)delegate;
+
+/**
  * 获取指定聊天室最新数量的消息
  *
  * @param roomId 聊天室 ID

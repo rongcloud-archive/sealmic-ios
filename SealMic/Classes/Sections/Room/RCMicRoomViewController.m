@@ -28,7 +28,6 @@
 #define ToolBarHeight 50
 #define ResponseWaiting 15
 
-static NSInteger KVSyncRetryCount = 0;
 @interface RCMicRoomViewController ()<RCMicRoomNavigationViewDelegate, RCMicRoomToolBarDelegate, RCMicParticipantsAreaDelegate, RCMicInputBarControlDelegate, RCMicChatViewDelegate, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) RCMicRoomViewModel *viewModel;
 @property (nonatomic, strong) UIImageView *backgroundView;
@@ -42,6 +41,8 @@ static NSInteger KVSyncRetryCount = 0;
 @property (nonatomic, strong) RCMicBottomDialogViewController *dialogViewController;//弹框样式
 @property (nonatomic, strong) NSIndexPath *currentBgSoundIndexPath;//当前房间伴音选择项纪录
 @property (nonatomic, strong) NSTimer *wheelDismissTimer;//控制主持人转让相关操作页面弹出的转轮
+@property (nonatomic, assign) BOOL joinRoomSuccess;//是否已成功加入房间
+@property (nonatomic, assign) BOOL kvSyncSuccess;//是否已完成 IM 聊天室 KV 信息同步
 @end
 
 @implementation RCMicRoomViewController
@@ -50,6 +51,8 @@ static NSInteger KVSyncRetryCount = 0;
 - (instancetype)initWithRoomInfo:(id)roomInfo Role:(RCMicRoleType)role {
     self = [super init];
     if (self) {
+        _joinRoomSuccess = NO;
+        _kvSyncSuccess = NO;
         [self initViewModelWithRoomInfo:roomInfo role:role];
     }
     return self;
@@ -90,6 +93,11 @@ static NSInteger KVSyncRetryCount = 0;
 - (void)initViewModelWithRoomInfo:(RCMicRoomInfo *)roomInfo role:(RCMicRoleType)role {
     __weak typeof(self) weakSelf = self;
     _viewModel = [[RCMicRoomViewModel alloc] initWithRoomInfo:roomInfo role:role];
+    //聊天室 KV 信息同步完成
+    [_viewModel setKvSyncCompleted:^{
+        weakSelf.kvSyncSuccess = YES;
+        [weakSelf checkRoomStatus];
+    }];
     //消息区域更新
     [_viewModel setMessageChanged:^(RCMicMessageChangedType type, NSArray * _Nonnull indexs) {
         [weakSelf.chatView updateTableViewWithType:type indexs:indexs];
@@ -211,9 +219,9 @@ static NSInteger KVSyncRetryCount = 0;
     [self.viewModel joinMicRoom:^{
         [weakSelf.viewModel sendTextMessage:RCMicLocalizedNamed(@"room_join") error:^(RCErrorCode errorCode) {
         }];
-        RCMicMainThread(^{
-            [weakSelf performSelector:@selector(loadDataAndPublishAudioStream) withObject:nil afterDelay:0.8];
-        })
+        //加入房间后需要等待 viewmodel 中的 KvSyncCompleted 回调才能开始从 聊天室 KV 中拉取麦位信息
+        weakSelf.joinRoomSuccess = YES;
+        [self checkRoomStatus];
     } imError:^{
         RCMicMainThread(^{
             [RCMicActiveWheel showPromptHUDAddedTo:RCMicKeyWindow text:RCMicLocalizedNamed(@"room_joinIM_failed")];
@@ -227,6 +235,13 @@ static NSInteger KVSyncRetryCount = 0;
     }];
 }
 
+- (void)checkRoomStatus {
+    //加入房间完成并且 KV 同步完成后才能开始加载初始房间数据
+    if (self.joinRoomSuccess && self.kvSyncSuccess) {
+        [self loadDataAndPublishAudioStream];
+    }
+}
+
 - (void)loadDataAndPublishAudioStream {
     __weak typeof(self) weakSelf = self;
     //加载麦位数据
@@ -237,15 +252,8 @@ static NSInteger KVSyncRetryCount = 0;
     } error:^(RCErrorCode errorCode) {
         RCMicMainThread(^{
             [RCMicActiveWheel showPromptHUDAddedTo:RCMicKeyWindow text:RCMicLocalizedNamed(@"room_getParticipantInfo_failed")];
-            //这里根据实际应用决定重试次数
-            if (KVSyncRetryCount < 1) {
-                //TODO:时间待定，改为 1.5 秒一次验证问题
-                [weakSelf performSelector:@selector(loadDataAndPublishAudioStream) withObject:nil afterDelay:1.5];
-                KVSyncRetryCount ++;
-            } else {
-                //进入房间获取麦位初始信息失败后退出聊天室
-                [weakSelf backAction];
-            }
+            //进入房间获取麦位初始信息失败后退出聊天室
+            [weakSelf backAction];
         })
     }];
     

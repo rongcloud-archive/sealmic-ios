@@ -7,11 +7,11 @@ target 'SealMic' do
 
   source 'https://github.com/CocoaPods/Specs.git'
 
-  pod 'AFNetworking', '~> 3.2.1'
+  pod 'AFNetworking', '3.2.1'
   pod 'SDWebImage', '5.8.0'
-  pod 'Masonry', '~> 1.1.0'
-  pod 'MJRefresh', '~> 3.4.3'
-  pod 'MBProgressHUD', '~> 1.2.0'
-  pod 'RongRTCLib', '~> 4.0.1.1'
-  pod 'Bugly', '~> 2.5.5'
+  pod 'Masonry', '1.1.0'
+  pod 'MJRefresh', '3.4.3'
+  pod 'MBProgressHUD', '1.2.0'
+  pod 'Bugly', '2.5.5'
+pod 'RongRTCLib', '4.0.3.2'
 end

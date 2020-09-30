@@ -43,7 +43,7 @@
        if (code == RCRTCCodeSuccess) {
             successBlock ? successBlock(room) : nil;
         } else {
-            RCMicLog(@"join rtc room complete with error, code:%ld",(long)code);
+            RCMicLog(@"join rtc room complete with error, code:%ld, roomId:%@, config:%@",(long)code, roomId, config);
             errorBlock ? errorBlock(code) : nil;
         }
     }];
@@ -57,7 +57,7 @@
         if (isSuccess) {
             successBlock ? successBlock() : nil;
         } else {
-            RCMicLog(@"leave rtc room complete with error, code:%ld",(long)code);
+            RCMicLog(@"leave rtc room complete with error, code:%ld, roomId:%@",(long)code, roomId);
             errorBlock ? errorBlock(code) : nil;
         }
     }];
@@ -67,8 +67,8 @@
     if (!room) {
         RCMicLog(@"publish audio stream error, room is null");
     }
-    [room.localUser publishDefaultLiveStream:^(BOOL isSuccess, RCRTCCode desc, RCRTCLiveInfo * _Nullable liveInfo) {
-       if (isSuccess) {
+    [room.localUser publishDefaultLiveStreams:^(BOOL isSuccess, RCRTCCode desc, RCRTCLiveInfo * _Nullable liveInfo) {
+        if (isSuccess) {
             successBlock ? successBlock(liveInfo) : nil;
         } else {
             RCMicLog(@"publish audio stream complete with error, code:%ld",(long)desc);
@@ -81,11 +81,11 @@
     if (liveUrl.length == 0) {
         RCMicLog(@"subscribe room strean error, live url is null");
     }
-    [[RCRTCEngine sharedInstance] subscribeLiveStream:liveUrl liveType:RCRTCLiveTypeAudio completion:^(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream) {
+    [[RCRTCEngine sharedInstance] subscribeLiveStream:liveUrl streamType:RCRTCAVStreamTypeAudio completion:^(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream) {
         if (desc == RCRTCCodeSuccess) {
             successBlock ? successBlock(inputStream) : nil;
         } else {
-            RCMicLog(@"subscribe room stream complete with error, code:%ld",(long)desc);
+            RCMicLog(@"subscribe room stream complete with error, code:%ld, liveUrl:%@",(long)desc, liveUrl);
             errorBlock ? errorBlock(desc) : nil;
         }
     }];
@@ -96,7 +96,7 @@
        if (isSuccess) {
             successBlock ? successBlock() : nil;
         } else {
-            RCMicLog(@"unsubscribe room stream complete with error, code:%ld",(long)code);
+            RCMicLog(@"unsubscribe room stream complete with error, code:%ld, liveUrl:%@",(long)code, liveUrl);
             errorBlock ? errorBlock(code) : nil;
         }
     }];
@@ -110,7 +110,7 @@
        if (isSuccess) {
             successBlock ? successBlock() : nil;
         } else {
-            RCMicLog(@"subscribe participant stream complete with error, code:%ld",(long)desc);
+            RCMicLog(@"subscribe participant stream complete with error, code:%ld, tinyStreams:%@",(long)desc, streams);
             errorBlock ? errorBlock(desc) : nil;
         }
     }];
@@ -123,7 +123,7 @@
 - (BOOL)useSpeaker:(BOOL)useSpeaker {
     BOOL result = [[RCRTCEngine sharedInstance] useSpeaker:useSpeaker];
     if (!result) {
-        RCMicLog(@"set use speaker failed");
+        RCMicLog(@"set use speaker failed, useSpaeker:%@", useSpeaker ? @"YES" : @"NO");
     }
     return result;
 }

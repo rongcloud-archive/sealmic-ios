@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSMutableDictionary<NSString *, RCMicParticipantViewModel *>*participantDataSource;//参会者（麦位）数据源
 
 #pragma mark - UI 更新相关
+
+/// 加入聊天室后 KV 同步完成的回调，此回调触发后就可以从聊天室 KV 中获取相关信息了
+@property (nonatomic, copy) void(^kvSyncCompleted)(void);
+
 /// 消息数据源变化回调，携带变化的类型及索引（需要在主线程操作，因为涉及到和 cell 增删的同步）
 @property (nonatomic, copy) void(^messageChanged)(RCMicMessageChangedType type, NSArray *indexs);
 

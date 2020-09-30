@@ -37,7 +37,12 @@ static AFHTTPSessionManager *manager;
                    parameters:(NSDictionary *)parameters
                      response:(void (^)(RCMicHTTPResult *))responseBlock {
     AFHTTPSessionManager *manager = [RCMicHTTPUtility sharedHTTPManager];
-    NSString *url = [BASE_URL stringByAppendingPathComponent:URLString];
+    NSString *url;
+    if ([BASE_URL hasSuffix:@"/"]) {
+        url = [BASE_URL stringByAppendingString:URLString];
+    } else {
+        url = [BASE_URL stringByAppendingFormat:@"/%@",URLString];
+    }
     
     switch (method) {
         case RCMicHTTPMethodGet: {
@@ -171,10 +176,6 @@ static AFHTTPSessionManager *manager;
 }
 
 + (NSString *)demoServer {
-    if (BASE_URL.length > 0) {
-        return [BASE_URL substringToIndex:BASE_URL.length - 3];
-    } else {
-        return nil;
-    }
+    return BASE_URL;
 }
 @end

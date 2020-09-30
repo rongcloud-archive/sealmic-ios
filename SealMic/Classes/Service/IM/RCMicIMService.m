@@ -14,9 +14,10 @@ NSString *const RCMicRecallMessageNotification = @"RCMicRecallMessageNotificatio
 
 static RCMicIMService *imService = nil;
 
-@interface RCMicIMService()<RCConnectionStatusChangeDelegate, RCIMClientReceiveMessageDelegate>
+@interface RCMicIMService()<RCConnectionStatusChangeDelegate, RCIMClientReceiveMessageDelegate, RCChatRoomKVStatusChangeDelegate>
 @property (nonatomic, strong) NSHashTable *messageHandleTable;
 @property (nonatomic, strong) NSHashTable *connectionStatusHandleTable;
+@property (nonatomic, strong) NSHashTable *kvStatusChangedTable;
 @end
 
 @implementation RCMicIMService
@@ -39,6 +40,7 @@ static RCMicIMService *imService = nil;
     [[RCIMClient sharedRCIMClient] initWithAppKey:APPKey];
     [[RCIMClient sharedRCIMClient] setRCConnectionStatusChangeDelegate:self];
     [[RCIMClient sharedRCIMClient] setReceiveMessageDelegate:self object:nil];
+    [[RCIMClient sharedRCIMClient] setRCChatRoomKVStatusChangeDelegate:self];
     //注册自定义消息
     [[RCIMClient sharedRCIMClient] registerMessageType:[RCMicGiftMessage class]];
     [[RCIMClient sharedRCIMClient] registerMessageType:[RCMicTransferHostMessage class]];
@@ -65,6 +67,10 @@ static RCMicIMService *imService = nil;
 
 - (void)addMessageHandleDelegate:(id<RCMicMessageHandleDelegate>)delegate {
     [self.messageHandleTable addObject:delegate];
+}
+
+- (void)addKVStatusChangedDelegate:(id<RCChatRoomKVStatusChangeDelegate>)delegate {
+    [self.kvStatusChangedTable addObject:delegate];
 }
 
 - (NSArray<RCMessage *> *)loadLatestMessageWithRoomId:(NSString *)roomId messageCount:(NSUInteger)count {
@@ -94,7 +100,7 @@ static RCMicIMService *imService = nil;
     [[RCIMClient sharedRCIMClient] recallMessage:message success:^(long messageId) {
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode errorcode) {
-        RCMicLog(@"recall message complete with error, code:%ld",(long)errorcode);
+        RCMicLog(@"recall message complete with error, code:%ld, message:%@",(long)errorcode, message);
         errorBlock ? errorBlock(errorcode) : nil;
     }];
 }
@@ -110,7 +116,7 @@ static RCMicIMService *imService = nil;
     [[RCIMClient sharedRCIMClient] joinChatRoom:roomId messageCount:(int)messageCount success:^{
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode status) {
-        RCMicLog(@"join chat room error, code:%ld",(long)status);
+        RCMicLog(@"join chat room error, code:%ld, roomId:%@",(long)status, roomId);
         errorBlock ? errorBlock(status) : nil;
     }];
 }
@@ -122,7 +128,7 @@ static RCMicIMService *imService = nil;
     [[RCIMClient sharedRCIMClient] quitChatRoom:roomId success:^{
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode status) {
-        RCMicLog(@"quit chatroom complete with error, code:%ld",(long)status);
+        RCMicLog(@"quit chatroom complete with error, code:%ld, roomId:%@",(long)status, roomId);
         errorBlock ? errorBlock(status) : nil;
     }];
 }
@@ -134,7 +140,7 @@ static RCMicIMService *imService = nil;
     [[RCIMClient sharedRCIMClient] getChatRoomInfo:roomId count:0 order:RC_ChatRoom_Member_Asc success:^(RCChatRoomInfo *chatRoomInfo) {
         successBlock ? successBlock(chatRoomInfo.totalMemberCount) : nil;
     } error:^(RCErrorCode status) {
-        RCMicLog(@"get chatroom user count complete with error, code:%ld",(long)status);
+        RCMicLog(@"get chatroom user count complete with error, code:%ld, roomId:%@",(long)status, roomId);
         errorBlock ? errorBlock(status) : nil;
     }];
 }
@@ -146,7 +152,7 @@ static RCMicIMService *imService = nil;
     [[RCIMClient sharedRCIMClient] getChatRoomEntry:roomId key:RCMicRoomLiveUrlKey success:^(NSDictionary *entry) {
         successBlock ? successBlock(entry[RCMicRoomLiveUrlKey]) : nil;
     } error:^(RCErrorCode nErrorCode) {
-        RCMicLog(@"get room live url complete with error, code:%ld", (long)nErrorCode);
+        RCMicLog(@"get room live url complete with error, code:%ld, roomId:%@, key:%@", (long)nErrorCode, roomId, RCMicRoomLiveUrlKey);
         errorBlock ? errorBlock(nErrorCode) : nil;
     }];
 }
@@ -158,7 +164,7 @@ static RCMicIMService *imService = nil;
     [[RCIMClient sharedRCIMClient] forceSetChatRoomEntry:roomId key:RCMicRoomLiveUrlKey value:liveUrl sendNotification:YES autoDelete:NO notificationExtra:nil success:^{
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode nErrorCode) {
-        RCMicLog(@"set room live url complete with error, roomId is null");
+        RCMicLog(@"set room live url complete with error, code:%ld, roomId:%@, liveUrl:%@",(long)nErrorCode, roomId, liveUrl);
         errorBlock ? errorBlock(nErrorCode) : nil;
     }];
 }
@@ -170,14 +176,14 @@ static RCMicIMService *imService = nil;
     [[RCIMClient sharedRCIMClient] getAllChatRoomEntries:roomId success:^(NSDictionary *entry) {
         successBlock ? successBlock([self generateParticipantInfoWithDitc:entry]) : nil;
     } error:^(RCErrorCode nErrorCode) {
-        RCMicLog(@"get all participant info complete with error, code:%ld",(long)nErrorCode);
+        RCMicLog(@"get all participant info complete with error, code:%ld, roomId:%@",(long)nErrorCode, roomId);
         errorBlock ? errorBlock(nErrorCode) : nil;
     }];
 }
 
 - (void)setSpeakingState:(NSString *)roomId position:(NSInteger)position isSpeaking:(BOOL)isSpeaking success:(void (^)(void))successBlock error:(void (^)(RCErrorCode))errorBlock {
     if (roomId.length == 0 || position < 0 || position > RCMicParticipantCount) {
-        RCMicLog(@"set speaking state error, param illegal");
+        RCMicLog(@"set speaking state error, param illegal, roomId:%@, position:%ld, isSpeaking:%@", roomId, (long)position, isSpeaking ? @"YES" : @"NO");
     }
     NSNumber *speaking = isSpeaking ? @(1) : @(0);
     NSDictionary *jsonDict = @{RCMicParticipantSpeakingKey:speaking, RCMicParticipantSpeakingPositionKey:@(position)};
@@ -186,7 +192,7 @@ static RCMicIMService *imService = nil;
     [[RCIMClient sharedRCIMClient] forceSetChatRoomEntry:roomId key:key value:value sendNotification:YES autoDelete:YES notificationExtra:nil success:^{
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode nErrorCode) {
-        RCMicLog(@"set speaking state complete with error, code:%ld, roomId:%@",(long)nErrorCode, roomId);
+        RCMicLog(@"set speaking state complete with error, code:%ld, roomId:%@, key:%@, value:%@",(long)nErrorCode, roomId, key, value);
         errorBlock ? errorBlock(nErrorCode) : nil;
     }];
 }
@@ -199,7 +205,7 @@ static RCMicIMService *imService = nil;
         BOOL waiting = [entry[RCMicParticipantWaitingKey] integerValue] == 1 ? YES : NO;
         successBlock ? successBlock(waiting) : nil;
     } error:^(RCErrorCode nErrorCode) {
-        RCMicLog(@"get participant waiting state complete with error, code:%ld",(long)nErrorCode);
+        RCMicLog(@"get participant waiting state complete with error, code:%ld, roomId:%@, key:%@",(long)nErrorCode, roomId, RCMicParticipantWaitingKey);
         errorBlock ? errorBlock(nErrorCode) : nil;
     }];
 }
@@ -236,17 +242,17 @@ static RCMicIMService *imService = nil;
 
 #pragma mark - RCConnectionStatusChangeDelegate
 - (void)onConnectionStatusChanged:(RCConnectionStatus)status {
-    for (id<RCMicIMConnectionStatusChangeDelegate>handler in self.connectionStatusHandleTable) {
-        if ([handler respondsToSelector:@selector(onConnectionStatusChanged:)]) {
-            [handler onConnectionStatusChanged:status];
+    for (id<RCMicIMConnectionStatusChangeDelegate>delegate in self.connectionStatusHandleTable) {
+        if ([delegate respondsToSelector:@selector(onConnectionStatusChanged:)]) {
+            [delegate onConnectionStatusChanged:status];
         }
     }
 }
 
 #pragma mark - RCIMClientReceiveMessageDelegate
 - (void)onReceived:(RCMessage *)message left:(int)nLeft object:(id)object {
-    for (id<RCMicMessageHandleDelegate>handler in self.messageHandleTable) {
-        if ([handler respondsToSelector:@selector(handleMessage:)] && [handler handleMessage:message]) {
+    for (id<RCMicMessageHandleDelegate>delegate in self.messageHandleTable) {
+        if ([delegate respondsToSelector:@selector(handleMessage:)] && [delegate handleMessage:message]) {
             break;
         }
     }
@@ -255,6 +261,31 @@ static RCMicIMService *imService = nil;
 - (void)onMessageRecalled:(long)messageId {
     RCMessage *message = [[RCIMClient sharedRCIMClient] getMessage:messageId];
     [[NSNotificationCenter defaultCenter] postNotificationName:RCMicRecallMessageNotification object:nil userInfo:@{@"message":message}];
+}
+
+#pragma mark - RCChatRoomKVStatusChangeDelegate
+- (void)chatRoomKVDidSync:(NSString *)roomId {
+    for (id<RCChatRoomKVStatusChangeDelegate>delegate in self.kvStatusChangedTable) {
+        if ([delegate respondsToSelector:@selector(chatRoomKVDidSync:)]) {
+            [delegate chatRoomKVDidSync:roomId];
+        }
+    }
+}
+
+- (void)chatRoomKVDidUpdate:(NSString *)roomId entry:(NSDictionary<NSString *,NSString *> *)entry {
+    for (id<RCChatRoomKVStatusChangeDelegate>delegate in self.kvStatusChangedTable) {
+        if ([delegate respondsToSelector:@selector(chatRoomKVDidUpdate:entry:)]) {
+            [delegate chatRoomKVDidUpdate:roomId entry:entry];
+        }
+    }
+}
+
+- (void)chatRoomKVDidRemove:(NSString *)roomId entry:(NSDictionary<NSString *,NSString *> *)entry {
+    for (id<RCChatRoomKVStatusChangeDelegate>delegate in self.kvStatusChangedTable) {
+        if ([delegate respondsToSelector:@selector(chatRoomKVDidRemove:entry:)]) {
+            [delegate chatRoomKVDidRemove:roomId entry:entry];
+        }
+    }
 }
 
 #pragma mark - Getters & Setters
@@ -270,5 +301,12 @@ static RCMicIMService *imService = nil;
         _messageHandleTable = [NSHashTable weakObjectsHashTable];
     }
     return _messageHandleTable;
+}
+
+- (NSHashTable *)kvStatusChangedTable {
+    if (!_kvStatusChangedTable) {
+        _kvStatusChangedTable = [NSHashTable weakObjectsHashTable];
+    }
+    return _kvStatusChangedTable;
 }
 @end

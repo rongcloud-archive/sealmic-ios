@@ -13,9 +13,9 @@
 #import <Masonry/Masonry.h>
 
 //环境配置
-#define APPKey @""//此处必填您的 app key
-#define BASE_URL @""//此处必填您的 demo server 地址
-#define BuglyKey @""//此处选填您应用的 buglyKey
+#define APPKey @""//此处填写您的 appkey（必填）
+#define BASE_URL @""//此处填写您的 demo server 地址（必填）
+#define BuglyKey @""//此处填写您应用的 buglyKey（选填）
 #define Navi_URL @""//此处填写私有云导航地址，公有云用户不需要配置
 //屏幕宽度等于逻辑分辨率 320 pt 认定为最小屏幕 iPhoneSE / 5 / 5c / 4 /3gs .....
 #define RCMicScreenWidthEqualTo320 RCMicScreenWidth == 320

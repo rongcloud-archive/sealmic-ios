@@ -50,9 +50,9 @@
 - (void)requestGetBannedList {
     //禁言列表
     [[RCMicAppService sharedService] getBannedUserList:self.viewModel.roomInfo.roomId success:^(NSArray<RCMicUserInfo *> * _Nonnull userList) {
-        [self.bannedArray removeAllObjects];
-        [self.bannedArray addObjectsFromArray:userList];
         RCMicMainThread(^{
+            [self.bannedArray removeAllObjects];
+            [self.bannedArray addObjectsFromArray:userList];
             [self.operationTableView reloadData];
         });
     } error:^(RCMicHTTPCode errorCode) {

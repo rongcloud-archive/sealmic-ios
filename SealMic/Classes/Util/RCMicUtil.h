@@ -14,6 +14,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface RCMicUtil : NSObject
+
+/// 此字段用于标识房间列表页即将展示时是否需要主动加载更多数据（由于此项目只是功能展示的 Demo，部分逻辑不符合常规，为了方便用户返回房间列表页时能够看到自己刚创建的房间需要这个字段来标识）
+@property (nonatomic, assign, class) BOOL loadMoreWhenRoomListAppear;
+
 /**
  * 获取适应手机当前模式的 UIColor
  *

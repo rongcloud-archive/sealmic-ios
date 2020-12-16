@@ -38,6 +38,9 @@
 }
 
 + (void)showPromptHUDAddedTo:(UIView *)view text:(NSString *)text {
+    if (view == nil){
+        return;
+    }
     RCMicActiveWheel *hud = [RCMicActiveWheel showHUDAddedTo:view];
     hud.mode = MBProgressHUDModeText;
     hud.detailsLabel.text = text;

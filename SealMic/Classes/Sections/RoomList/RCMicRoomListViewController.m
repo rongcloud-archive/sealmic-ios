@@ -49,6 +49,10 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self showPortraitWhenUserLogin];
+    if (RCMicUtil.loadMoreWhenRoomListAppear) {
+        [self loadMoreAction];
+        RCMicUtil.loadMoreWhenRoomListAppear = NO;
+    }
 }
 
 - (void)dealloc {

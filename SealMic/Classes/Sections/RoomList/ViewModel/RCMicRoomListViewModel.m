@@ -9,7 +9,7 @@
 #import "RCMicRoomListViewModel.h"
 #import "RCMicAppService.h"
 #import "RCMicMacro.h"
-#define RoomListFetchCount 10
+#define RoomListFetchCount 50
 
 @implementation RCMicRoomListViewModel
 

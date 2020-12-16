@@ -17,8 +17,11 @@
 #define BASE_URL @""//此处填写您的 demo server 地址（必填）
 #define BuglyKey @""//此处填写您应用的 buglyKey（选填）
 #define Navi_URL @""//此处填写私有云导航地址，公有云用户不需要配置
-//屏幕宽度等于逻辑分辨率 320 pt 认定为最小屏幕 iPhoneSE / 5 / 5c / 4 /3gs .....
+#define MediaServer_URL @""//此处填写私有云媒体服务地址，公有云用户不需要配置
+
 #define RCMicScreenWidthEqualTo320 RCMicScreenWidth == 320
+//屏幕高度小于等于逻辑分辨率 667 pt 认定为不弹键盘屏幕 具体看自己产品设计需求及适配
+#define RCMicScreenHeightEqualOrLessTo667 RCMicScreenHeight <= 667
 #define RCMicScreenWidth       [UIScreen mainScreen].bounds.size.width
 #define RCMicScreenHeight      [UIScreen mainScreen].bounds.size.height
 #define RCMicKeyWindow [UIApplication sharedApplication].keyWindow

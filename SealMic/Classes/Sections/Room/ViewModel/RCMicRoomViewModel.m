@@ -51,13 +51,14 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 }
 
 - (void)descory {
-   
+    
     if (self.role == RCMicRoleType_Audience && self.liveUrl.length > 0) {
         __weak typeof(self) weakSelf = self;
         [[RCMicRTCService sharedService] unsubscribeRoomStream:weakSelf.liveUrl success:^{
             weakSelf.liveUrl = nil;
         } error:^(RCRTCCode code) {
-            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_unsubscribeStream_failed")];
+//            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_unsubscribeStream_failed")];
+            RCMicLog(@"descory unsubscribeRoomStream failed RCRTCCode:%ld",(long)code);
         }];
     } else {
         self.isSpeaking = NO;
@@ -104,7 +105,7 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 - (void)quitMicRoom:(void (^)(void))successBlock error:(void (^)(void))errorBlock {
     __weak typeof(self) weakSelf = self;
     [[RCMicIMService sharedService] quitChatRoom:self.roomInfo.roomId success:^{
-//        __strong __typeof(self) strongSelf = weakSelf;
+        //        __strong __typeof(self) strongSelf = weakSelf;
         //主持人或参会者：退出 IM 聊天室和 RTC 房间
         //观众：只需要退出聊天室即可
         if (self.role == RCMicRoleType_Audience) {
@@ -527,24 +528,25 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 
 - (void)changeAudienceToParticipant:(RCMicParticipantInfo *)participantInfo {
     __weak typeof(self) weakSelf = self;
-
+    
     if (weakSelf.liveUrl.length > 0) {
         //只有之前成功订阅过直播间合流时才需要先取消订阅
         [[RCMicRTCService sharedService] unsubscribeRoomStream:weakSelf.liveUrl success:^{
             //取消成功后需要将 liveUrl 置为 nil
             weakSelf.liveUrl = nil;
-            [weakSelf changeToParticipant];
         } error:^(RCRTCCode code) {
-            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_unsubscribeStream_failed")];
+            //            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_unsubscribeStream_failed")];
+            RCMicLog(@"changeAudienceToParticipant room unsubscribeStream failed RCRTCCode:%ld",(long)code);
         }];
-    } else {
-        [weakSelf changeToParticipant];
+        
     }
+    [weakSelf changeToParticipant];
+    
 }
 
 - (void)changeToParticipant {
     __weak typeof(self) weakSelf = self;
-
+    
     //加入 RTC 房间
     [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId success:^(RCRTCRoom * _Nonnull room) {
         weakSelf.room = room;
@@ -601,22 +603,19 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
                 //只有之前成功订阅过直播间合流且此次更新后合流地址变更了才需要先取消订阅
                 [[RCMicRTCService sharedService] unsubscribeRoomStream:weakSelf.liveUrl success:^{
                     weakSelf.liveUrl = nil;
-                    [weakSelf subscribeRoomStreamWithUrl:newLiveUrl success:^{
-                    } error:^{
-                        //订阅直播间变更后的合流失败，根据应用实际决定如何提示用户
-                        [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
-                    }];
                 } error:^(RCRTCCode code) {
-                    [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_unsubscribeStream_failed")];
+//                    [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_unsubscribeStream_failed")];
+                    RCMicLog(@"reSubscribeAudioStreamIfNeeded unsubscribeRoomStream failed RCRTCCode:%ld",(long)code);
                 }];
             }
-        } else {
-            [self subscribeRoomStreamWithUrl:newLiveUrl success:^{
-            } error:^{
-                //订阅直播间变更后的合流失败，根据应用实际决定如何提示用户
-                [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
-            }];
         }
+        
+        [self subscribeRoomStreamWithUrl:newLiveUrl success:^{
+        } error:^{
+            //订阅直播间变更后的合流失败，根据应用实际决定如何提示用户
+            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
+        }];
+        
     }
 }
 
@@ -642,7 +641,12 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
                     weakSelf.publishOrSubscribeStream ? weakSelf.publishOrSubscribeStream(NO) : nil;
                 })
             } error:^(RCRTCCode code) {
-                errorBlock ? errorBlock() : nil;
+                if (code == RCRTCCodeHttpRequestError) {
+                    //50012 mediaResultCode:45001 保活15分钟 不做提示
+                    RCMicLog(@"subscribeRoomStream errorCode:%ld",code);
+                }else {
+                    errorBlock ? errorBlock() : nil;
+                }
             }];
         } error:^(RCErrorCode errorCode) {
             if (errorCode != RC_KEY_NOT_EXIST) {

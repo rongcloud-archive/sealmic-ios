@@ -47,8 +47,8 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    //判断当前设备是否是 iphone 5/se 如果是的话 不做输入框跟随。
-    if (RCMicScreenWidthEqualTo320){
+    //判断当前设备高度根据需求添加输入框跟随通知。
+    if (RCMicScreenHeightEqualOrLessTo667){
         return;
     }
     //键盘将弹出的时候获取通知
@@ -59,8 +59,8 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    //判断当前设备是否是 iphone 5/se 如果是的话 不做输入框跟随。
-    if (RCMicScreenWidthEqualTo320){
+    //判断当前设备高度根据需求添加输入框跟随通知。
+    if (RCMicScreenHeightEqualOrLessTo667){
         return;
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
@@ -194,8 +194,10 @@
                     [RCMicActiveWheel hideHUDForView:RCMicKeyWindow animated:YES];
                     RCMicRoomViewController *roomVC = [[RCMicRoomViewController alloc] initWithRoomInfo:roomInfo Role:RCMicRoleType_Host];
                     [self.navigationController pushViewController:roomVC animated:YES];
-            //push 之后从导航中移除自身
-            NSMutableArray *controllers = [self.navigationController.viewControllers mutableCopy];
+                    //进入房间页需要用此字段标识以便下次回到房间列表主动做一次数据加载
+                    RCMicUtil.loadMoreWhenRoomListAppear = YES;
+                    //push 之后从导航中移除自身
+                    NSMutableArray *controllers = [self.navigationController.viewControllers mutableCopy];
                     [controllers removeObject:self];
                     [self.navigationController setViewControllers:controllers animated:NO];
         })

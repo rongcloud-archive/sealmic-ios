@@ -22,7 +22,7 @@
 "createRoom_ok"="OK";
 "createRoom_name_placeholder"="Input name";
 "createRoom_roomTheme_Title"="Room theme";
-"createRoom_name_invalid"="Name too long!";
+"createRoom_name_invalid"="Invalid, letters、numbers、Chinese Characters are supported and not exceed 20!";
 
 //房间
 "room_join"="Join room";
@@ -183,7 +183,8 @@
 "http_takeover_expired"="Take over expired";
 "http_room_locked"="Room is locked";
 "http_noNewVersion"="No new version";
-
+"room_existing_user_no_locking_allowed_alert"="MAC bit lock operation is not allowed because there are already MAC users!";
+"room_existing_user_no_close_mic_alert"="There is no user on the wheat position, closed wheat operation is not allowed!";
 //房间麦位转换相关错误提示
 "room_joinRTC_failed"="Join RTC room failed";
 "room_joinIM_failed"="Join IM room failed ";

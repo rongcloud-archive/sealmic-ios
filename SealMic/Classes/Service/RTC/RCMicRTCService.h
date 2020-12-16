@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *@param form 统计表单对象
  */
-- (void)didReportStatForm:(RCRTCStatisticalForm*)form;
+- (void)didReportStatForm:(RCRTCStatisticalForm *)form;
 @end
 
 @interface RCMicRTCService : NSObject<RCRTCActivityMonitorDelegate>

@@ -263,12 +263,6 @@
         if (indexPath.item == 0){
             [[RCMicRTCService sharedService] stopMixingMusic];
         }else {
-            //先判断当前麦克风是否开启，如果不开启提示先开启麦克风 才能播放伴音。
-            if (!self.viewModel.useMicrophone) {
-                [RCMicActiveWheel showPromptHUDAddedTo:RCMicKeyWindow text:RCMicLocalizedNamed(@"lack_microphone")];
-                [self dismissViewControllerAnimated:false completion:nil];
-                return;
-            }
             
             RCMicOperationAudioCollectionCell *cell = (RCMicOperationAudioCollectionCell *)[collectionView cellForItemAtIndexPath:indexPath];
             // 选中之后的cell变为选中样式

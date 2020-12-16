@@ -32,7 +32,7 @@
     [self updateIfNeeded];
     [self visitorLogin];
     [self addNotificationObserver];
-    
+
     return YES;
 }
 

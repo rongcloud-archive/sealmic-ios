@@ -189,6 +189,16 @@ typedef NS_ENUM (NSInteger, RCMicHTTPCode) {
      * 房间名称格式有误（客户端单加的）
      */
     RCMicHTTPCodeErrRoomNameInvalid = 90002,
+    /**
+     * 麦位已有用户，不允许进行麦位锁定操作
+     */
+    RCMicHTTPCodeErrExistingUserNoLockingAllowed = 30014,
+    
+    /**
+     * 麦位上无用户，不允许进行闭麦操作
+     */
+    RCMicHTTPCodeErrExistingUserNoCloseMicAllowed = 30015,
+    
 };
 
 #endif /* RCMicEnumDefine_h */

@@ -21,9 +21,16 @@
         if (pDefaultClient == nil) {
             pDefaultClient = [[RCMicRTCService alloc] init];
             [RCRTCEngine sharedInstance].monitorDelegate = pDefaultClient;
+            [pDefaultClient setupMediaServerURL];
         }
     });
     return pDefaultClient;
+}
+
+- (void)setupMediaServerURL {
+    if (MediaServer_URL.length > 0){
+        [[RCRTCEngine sharedInstance] setMediaServerUrl:MediaServer_URL];
+    }
 }
 
 #pragma mark - Public method
@@ -67,7 +74,8 @@
     if (!room) {
         RCMicLog(@"publish audio stream error, room is null");
     }
-    [room.localUser publishDefaultLiveStreams:^(BOOL isSuccess, RCRTCCode desc, RCRTCLiveInfo * _Nullable liveInfo) {
+    
+    [room.localUser publishLiveStream:[RCRTCEngine sharedInstance].defaultAudioStream completion:^(BOOL isSuccess, RCRTCCode desc, RCRTCLiveInfo * _Nullable liveInfo) {
         if (isSuccess) {
             successBlock ? successBlock(liveInfo) : nil;
         } else {
@@ -117,6 +125,7 @@
 }
 
 - (void)microphoneEnable:(BOOL)enable {
+    RCMicLog(@"microphoneEnable enable:%@", enable ? @"YES" : @"NO");
     [[RCRTCEngine sharedInstance].defaultAudioStream setMicrophoneDisable:!enable];
 }
 
@@ -141,7 +150,7 @@
 
 #pragma mark - RongRTCActivityMonitorDelegate
 - (void)didReportStatForm:(RCRTCStatisticalForm*)form {
-    for (id<RCMicRTCActivityMonitorDelegate> delegate in self.rtcMonitorTable) {
+    for (id<RCMicRTCActivityMonitorDelegate> delegate in self.rtcMonitorTable.allObjects) {
         if ([delegate respondsToSelector:@selector(didReportStatForm:)]) {
             [delegate didReportStatForm:form];
         }

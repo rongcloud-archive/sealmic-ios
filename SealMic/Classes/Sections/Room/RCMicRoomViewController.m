@@ -221,7 +221,7 @@
         }];
         //加入房间后需要等待 viewmodel 中的 KvSyncCompleted 回调才能开始从 聊天室 KV 中拉取麦位信息
         weakSelf.joinRoomSuccess = YES;
-        [self checkRoomStatus];
+        [weakSelf checkRoomStatus];
     } imError:^{
         RCMicMainThread(^{
             [RCMicActiveWheel showPromptHUDAddedTo:RCMicKeyWindow text:RCMicLocalizedNamed(@"room_joinIM_failed")];
@@ -261,7 +261,7 @@
     [self.viewModel publishOrSubscribeAudioStream:^{
     } error:^{
         RCMicMainThread(^{
-            [RCMicActiveWheel showPromptHUDAddedTo:RCMicKeyWindow text:RCMicLocalizedNamed(@"room_publishOrSubscribeStream_failed")];
+            [RCMicActiveWheel showPromptHUDAddedTo:weakSelf.view text:RCMicLocalizedNamed(@"room_publishOrSubscribeStream_failed")];
         })
     }];
     
@@ -337,12 +337,6 @@
 - (void)setMicrophoneState:(RCMicMicrophoneState)state {
     BOOL enable = state == RCMicMicrophoneStateNormal ? YES : NO;
     [self.viewModel setUseMicrophone:enable];
-    if (!enable){
-        //麦克风不打开的时候，停止房间里的混音
-        [[RCMicRTCService sharedService] stopMixingMusic];
-        //伴音选项默认还原为 无 选项
-        self.currentBgSoundIndexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    }
     self.customToolBar.microPhoneState = state;
 }
 

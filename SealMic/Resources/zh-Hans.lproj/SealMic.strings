@@ -43,6 +43,8 @@
 "room_broadcast_room"="房间送出";
 "room_recall_failed"="撤回失败";
 "room_banned_alert"="您已经被禁言!";
+"room_existing_user_no_locking_allowed_alert"="麦位已有用户，不允许进行麦位锁定操作!";
+"room_existing_user_no_close_mic_alert"="麦位上无用户，不允许进行闭麦操作!";
 
 //登录
 "login_button"="登录";

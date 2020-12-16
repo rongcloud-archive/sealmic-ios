@@ -242,7 +242,7 @@ static RCMicIMService *imService = nil;
 
 #pragma mark - RCConnectionStatusChangeDelegate
 - (void)onConnectionStatusChanged:(RCConnectionStatus)status {
-    for (id<RCMicIMConnectionStatusChangeDelegate>delegate in self.connectionStatusHandleTable) {
+    for (id<RCMicIMConnectionStatusChangeDelegate>delegate in self.connectionStatusHandleTable.allObjects) {
         if ([delegate respondsToSelector:@selector(onConnectionStatusChanged:)]) {
             [delegate onConnectionStatusChanged:status];
         }
@@ -251,7 +251,7 @@ static RCMicIMService *imService = nil;
 
 #pragma mark - RCIMClientReceiveMessageDelegate
 - (void)onReceived:(RCMessage *)message left:(int)nLeft object:(id)object {
-    for (id<RCMicMessageHandleDelegate>delegate in self.messageHandleTable) {
+    for (id<RCMicMessageHandleDelegate>delegate in self.messageHandleTable.allObjects) {
         if ([delegate respondsToSelector:@selector(handleMessage:)] && [delegate handleMessage:message]) {
             break;
         }
@@ -265,7 +265,7 @@ static RCMicIMService *imService = nil;
 
 #pragma mark - RCChatRoomKVStatusChangeDelegate
 - (void)chatRoomKVDidSync:(NSString *)roomId {
-    for (id<RCChatRoomKVStatusChangeDelegate>delegate in self.kvStatusChangedTable) {
+    for (id<RCChatRoomKVStatusChangeDelegate>delegate in self.kvStatusChangedTable.allObjects) {
         if ([delegate respondsToSelector:@selector(chatRoomKVDidSync:)]) {
             [delegate chatRoomKVDidSync:roomId];
         }
@@ -273,7 +273,7 @@ static RCMicIMService *imService = nil;
 }
 
 - (void)chatRoomKVDidUpdate:(NSString *)roomId entry:(NSDictionary<NSString *,NSString *> *)entry {
-    for (id<RCChatRoomKVStatusChangeDelegate>delegate in self.kvStatusChangedTable) {
+    for (id<RCChatRoomKVStatusChangeDelegate>delegate in self.kvStatusChangedTable.allObjects) {
         if ([delegate respondsToSelector:@selector(chatRoomKVDidUpdate:entry:)]) {
             [delegate chatRoomKVDidUpdate:roomId entry:entry];
         }
@@ -281,7 +281,7 @@ static RCMicIMService *imService = nil;
 }
 
 - (void)chatRoomKVDidRemove:(NSString *)roomId entry:(NSDictionary<NSString *,NSString *> *)entry {
-    for (id<RCChatRoomKVStatusChangeDelegate>delegate in self.kvStatusChangedTable) {
+    for (id<RCChatRoomKVStatusChangeDelegate>delegate in self.kvStatusChangedTable.allObjects) {
         if ([delegate respondsToSelector:@selector(chatRoomKVDidRemove:entry:)]) {
             [delegate chatRoomKVDidRemove:roomId entry:entry];
         }

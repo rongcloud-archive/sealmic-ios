@@ -10,7 +10,7 @@
 #import "RCMicMacro.h"
 #import "RCMicHTTPUtility.h"
 
-
+static BOOL _loadMoreWhenRoomListAppear = NO;
 #define LOG_EXPIRE_TIME -7 * 24 * 60 * 60
 
 @implementation RCMicUtil
@@ -308,6 +308,12 @@
             case RCMicHTTPCodeErrRoomTakeoverInfoInvalid:
                 tipString = RCMicLocalizedNamed(@"http_takeover_expired");
                 break;
+            case RCMicHTTPCodeErrExistingUserNoLockingAllowed:
+                tipString = RCMicLocalizedNamed(@"room_existing_user_no_locking_allowed_alert");
+                break;
+            case RCMicHTTPCodeErrExistingUserNoCloseMicAllowed:
+                tipString = RCMicLocalizedNamed(@"room_existing_user_no_close_mic_alert");
+                break;
             //版本升级
             case RCMicHTTPCodeErrAppNoNewVersions:
                 tipString = RCMicLocalizedNamed(@"http_noNewVersion");
@@ -325,5 +331,14 @@
         }
         [RCMicActiveWheel showPromptHUDAddedTo:RCMicKeyWindow text:tipString];
     })
+}
+
+#pragma mark - Getters $ Setters
++ (BOOL)loadMoreWhenRoomListAppear {
+    return _loadMoreWhenRoomListAppear;
+}
+
++ (void)setLoadMoreWhenRoomListAppear:(BOOL)loadMoreWhenRoomListAppear {
+    _loadMoreWhenRoomListAppear = loadMoreWhenRoomListAppear;
 }
 @end

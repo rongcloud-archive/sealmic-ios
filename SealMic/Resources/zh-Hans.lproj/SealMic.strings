@@ -54,6 +54,9 @@
 "verification_code"="验证码";
 "another_login_alert"="当前账号在其他端登录";
 "another_login_agree"="确认";
+"login_agreement_title"="新登录用户即注册开通融云开发者账号";
+"login_agreement_content"="且表示同意《注册条款》";
+"rongcloud_product_Usage_Agreement" = "《注册条款》";
 
 //RTC monitor
 "chat_data_excel_tunnelname"="通道名称";

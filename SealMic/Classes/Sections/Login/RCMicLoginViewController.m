@@ -12,14 +12,21 @@
 #import "RCMicUtil.h"
 #import "RCMicActiveWheel.h"
 #import "RCMicLoginViewModel.h"
+#import "RCMicAgreementWebVC.h"
 
-@interface RCMicLoginViewController ()<VerificationInputDelegate>
+#define AGREEMENT @"www.rongcloud.cn"
+#define AGREEMENTBOTTOMDISTANCE 43
+#define AGREEMENTHEIGHT 15
+
+@interface RCMicLoginViewController ()<VerificationInputDelegate, UITextViewDelegate>
 @property (nonatomic, strong) RCMicPhoneVerificationView *verificationView;
 @property (nonatomic, strong) UIButton *backBtn;
 @property (nonatomic, strong) UIImageView *logoImageView;
 @property (nonatomic, strong) UIImageView *logoTitleImageView;
 @property (nonatomic, strong) UIButton *loginBtn;
 @property (nonatomic, strong) NSString *currentPhoneNumber;
+@property (nonatomic, strong) UILabel *agreementLabel;
+@property (nonatomic, strong) UITextView *agreementView;
 @property (nonatomic, strong) RCMicLoginViewModel *viewModel;
 @end
 
@@ -126,6 +133,25 @@
     self.currentPhoneNumber = phoneNumber;
 }
 
+#pragma mark - UITextViewDelegate
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange interaction:(UITextItemInteraction)interaction {
+    if ([URL.absoluteString isEqualToString:AGREEMENT]) {
+        RCMicAgreementWebVC *agreementWebVC = [[RCMicAgreementWebVC alloc] init];
+        [self.navigationController pushViewController:agreementWebVC animated:YES];
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange {
+    if ([URL.absoluteString isEqualToString:AGREEMENT]) {
+        RCMicAgreementWebVC *agreementWebVC = [[RCMicAgreementWebVC alloc] init];
+        [self.navigationController pushViewController:agreementWebVC animated:YES];
+        return YES;
+    }
+    return NO;
+}
+
 #pragma mark - Private method
 - (void)addSubviews {
     [self.view addSubview:self.backBtn];
@@ -133,6 +159,8 @@
     [self.view addSubview:self.logoTitleImageView];
     [self.view addSubview:self.verificationView];
     [self.view addSubview:self.loginBtn];
+    [self.view addSubview:self.agreementLabel];
+    [self.view addSubview:self.agreementView];
 }
 
 - (void)addConstraints {
@@ -168,10 +196,24 @@
     }];
     
     [self.loginBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.view.mas_bottom).offset(-60);
+        make.bottom.equalTo(self.view.mas_bottom).offset(-AGREEMENTBOTTOMDISTANCE + -2*AGREEMENTHEIGHT + -5);
         make.left.mas_equalTo(36);
         make.right.mas_equalTo(-36);
         make.height.mas_equalTo(50);
+    }];
+    
+    [self.agreementLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.equalTo(self.view).offset(-AGREEMENTBOTTOMDISTANCE + -AGREEMENTHEIGHT);
+        make.centerX.equalTo(self.view);
+        make.width.mas_equalTo(RCMicScreenWidth);
+        make.height.mas_equalTo(AGREEMENTHEIGHT);
+    }];
+    
+    [self.agreementView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.equalTo(self.view).offset(-AGREEMENTBOTTOMDISTANCE);
+        make.centerX.equalTo(self.view);
+        make.width.mas_equalTo(RCMicScreenWidth);
+        make.height.mas_equalTo(AGREEMENTHEIGHT);
     }];
 }
 
@@ -237,4 +279,38 @@
     return _loginBtn;
 }
 
+- (UILabel *)agreementLabel {
+    if (!_agreementLabel) {
+        _agreementLabel = [[UILabel alloc] init];
+        _agreementLabel.text = RCMicLocalizedNamed(@"login_agreement_title");
+        _agreementLabel.font = RCMicFont(12, @"PingFangSC-Regular");
+        _agreementLabel.textColor = RCMicColor(HEXCOLOR(0x5C6970, 1.0), HEXCOLOR(0x5C6970, 1.0));
+        _agreementLabel.textAlignment = NSTextAlignmentCenter;
+    }
+    return _agreementLabel;
+}
+
+- (UITextView *)agreementView {
+    if (!_agreementView) {
+        _agreementView = [[UITextView alloc] init];
+        NSMutableAttributedString *attributedStr = [[NSMutableAttributedString alloc] initWithString:RCMicLocalizedNamed(@"login_agreement_content") attributes:@{NSFontAttributeName:RCMicFont(12, @"PingFangSC-Regular"), NSForegroundColorAttributeName:RCMicColor(HEXCOLOR(0x5C6970, 1.0), HEXCOLOR(0x5C6970, 1.0))}];
+        NSRange blueRange;
+        //此处字符串形式固定，且中文时是 11 个字符
+        if (attributedStr.length == 11) {
+            blueRange = NSMakeRange(5, 6);
+        } else {
+            blueRange = NSMakeRange(17, 19);
+        }
+        [attributedStr addAttributes:@{NSForegroundColorAttributeName:RCMicColor(HEXCOLOR(0x0099FF, 1.0), HEXCOLOR(0x0099FF, 1.0)), NSLinkAttributeName:AGREEMENT} range:blueRange];
+        _agreementView.attributedText = attributedStr;
+        _agreementView.delegate = self;
+        _agreementView.textAlignment = NSTextAlignmentCenter;
+        _agreementView.editable = NO;
+        _agreementView.selectable = YES;
+        _agreementView.scrollEnabled = NO;
+        _agreementView.textContainerInset = UIEdgeInsetsZero;
+        
+    }
+    return _agreementView;
+}
 @end

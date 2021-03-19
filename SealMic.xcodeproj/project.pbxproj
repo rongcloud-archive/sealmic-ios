@@ -46,6 +46,8 @@
 		77BA97FC247BC3BD00EA0417 /* RCMicRTCService.m in Sources */ = {isa = PBXBuildFile; fileRef = 77BA97FB247BC3BD00EA0417 /* RCMicRTCService.m */; };
 		77BA97FF247BC3C800EA0417 /* RCMicIMService.m in Sources */ = {isa = PBXBuildFile; fileRef = 77BA97FE247BC3C800EA0417 /* RCMicIMService.m */; };
 		77BA9802247BE3B200EA0417 /* RCMicUserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 77BA9801247BE3B200EA0417 /* RCMicUserInfo.m */; };
+		77D50A2025F6061B009304CE /* RCMicAgreementWebVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 77D50A1E25F6061A009304CE /* RCMicAgreementWebVC.m */; };
+		77D50A3825F60F48009304CE /* agreement_zh.html in Resources */ = {isa = PBXBuildFile; fileRef = 77D50A3725F60F48009304CE /* agreement_zh.html */; };
 		77DAF4FD2485FE450016DC3B /* RCMicParticipantCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 77DAF4FC2485FE450016DC3B /* RCMicParticipantCell.m */; };
 		77DAF50024860CBD0016DC3B /* RCMicMessageBaseCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 77DAF4FF24860CBD0016DC3B /* RCMicMessageBaseCell.m */; };
 		77DAF50F248672100016DC3B /* RCMicMessageViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 77DAF50E248672100016DC3B /* RCMicMessageViewModel.m */; };
@@ -178,6 +180,9 @@
 		77BA97FE247BC3C800EA0417 /* RCMicIMService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCMicIMService.m; sourceTree = "<group>"; };
 		77BA9800247BE3B200EA0417 /* RCMicUserInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCMicUserInfo.h; sourceTree = "<group>"; };
 		77BA9801247BE3B200EA0417 /* RCMicUserInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCMicUserInfo.m; sourceTree = "<group>"; };
+		77D50A1E25F6061A009304CE /* RCMicAgreementWebVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMicAgreementWebVC.m; sourceTree = "<group>"; };
+		77D50A1F25F6061A009304CE /* RCMicAgreementWebVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMicAgreementWebVC.h; sourceTree = "<group>"; };
+		77D50A3725F60F48009304CE /* agreement_zh.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = agreement_zh.html; sourceTree = "<group>"; };
 		77DAF4FB2485FE450016DC3B /* RCMicParticipantCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCMicParticipantCell.h; sourceTree = "<group>"; };
 		77DAF4FC2485FE450016DC3B /* RCMicParticipantCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCMicParticipantCell.m; sourceTree = "<group>"; };
 		77DAF4FE24860CBD0016DC3B /* RCMicMessageBaseCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCMicMessageBaseCell.h; sourceTree = "<group>"; };
@@ -418,6 +423,7 @@
 		77359DD1247513CC007A4099 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				77D50A3725F60F48009304CE /* agreement_zh.html */,
 				77F9D14424B5AAFA0016DAD9 /* Music */,
 				77F8034C2488CB5A00A42FA2 /* Emoji.plist */,
 				77359DD2247513CC007A4099 /* Assets.xcassets */,
@@ -536,6 +542,8 @@
 			children = (
 				77BA97E2247BA74F00EA0417 /* RCMicLoginViewController.h */,
 				77BA97E3247BA74F00EA0417 /* RCMicLoginViewController.m */,
+				77D50A1F25F6061A009304CE /* RCMicAgreementWebVC.h */,
+				77D50A1E25F6061A009304CE /* RCMicAgreementWebVC.m */,
 				C085E99324B1C1960072846E /* ViewModel */,
 				77BA97EA247BA99C00EA0417 /* View */,
 			);
@@ -1046,6 +1054,7 @@
 				77F9D14A24B5AAFA0016DAD9 /* rain_thunder1.mp3 in Resources */,
 				77359DD6247513CC007A4099 /* Assets.xcassets in Resources */,
 				77F9D14924B5AAFA0016DAD9 /* airport_gate1.mp3 in Resources */,
+				77D50A3825F60F48009304CE /* agreement_zh.html in Resources */,
 				77359DD7247513CC007A4099 /* LaunchScreen.storyboard in Resources */,
 				77F7E07024765AE0006007E0 /* SealMic.strings in Resources */,
 			);
@@ -1157,6 +1166,7 @@
 				77DAF512248675F50016DC3B /* RCMicMessageCell.m in Sources */,
 				C0782DD224909231000CDBE0 /* GiftAnimationViewController.m in Sources */,
 				77127A7924A0836C009B837B /* RCMicKickOutMessage.m in Sources */,
+				77D50A2025F6061B009304CE /* RCMicAgreementWebVC.m in Sources */,
 				77FFB244249B57B7002B442C /* RCMicTransferHostMessage.m in Sources */,
 				C03F06A624A9E8AB00B7B56F /* RCMicAlertViewController.m in Sources */,
 				771D712B247D3AF70056109D /* RCMicRoomNavigationView.m in Sources */,

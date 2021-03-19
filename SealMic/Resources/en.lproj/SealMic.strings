@@ -52,6 +52,9 @@
 "verification_code"="Verify";
 "another_login_alert"="You have been kicked out by other Client";
 "another_login_agree"="Ensure";
+"login_agreement_title"="By login,you are registering RongCloud Developer Account";
+"login_agreement_content"="and you agree to \"Terms of Register\"";
+"rongcloud_product_Usage_Agreement" = "Terms of Register";
 
 //RTC monitor
 "chat_data_excel_tunnelname"="通道名称";

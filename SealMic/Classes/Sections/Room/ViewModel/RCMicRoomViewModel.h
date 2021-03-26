@@ -39,8 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 参会者（麦位）数据源变化回调，携带发生变化的麦位在聊天室 KV 中对应的 key
 @property (nonatomic, copy) void(^participantChanged)(NSArray<NSString *> *keys);
 
-/// 发布或订阅流的回调，携带参数标明是否是发布流，每次发布或者订阅流之后都要手动设置一遍扬声器状态
-@property (nonatomic, copy) void(^publishOrSubscribeStream)(BOOL isPublish);
+/// 当前用户身份变化后的回调（只有持麦情况变化时会触发，在麦位上的身份互换不会触发）
+@property (nonatomic, copy) void(^didHoldOrGiveUpMic)(BOOL isHold);
 
 /// RTC 统计出的延迟信息发生变化回调，携带变化后的延迟
 @property (nonatomic, copy) void(^delayInfoChanged)(NSInteger delay);

@@ -20,7 +20,7 @@
     dispatch_once(&onceToken, ^{
         if (pDefaultClient == nil) {
             pDefaultClient = [[RCMicRTCService alloc] init];
-            [RCRTCEngine sharedInstance].monitorDelegate = pDefaultClient;
+            [RCRTCEngine sharedInstance].statusReportDelegate = pDefaultClient;
             [pDefaultClient setupMediaServerURL];
         }
     });
@@ -39,13 +39,14 @@
     [self.rtcMonitorTable addObject:delegate];
 }
 
-- (void)joinRoom:(NSString *)roomId success:(void(^)(RCRTCRoom *room))successBlock error:(void(^)(RCRTCCode code))errorBlock {
+- (void)joinRoom:(NSString *)roomId roleType:(RCRTCLiveRoleType)roleType success:(void (^)(RCRTCRoom * _Nonnull))successBlock error:(void (^)(RCRTCCode))errorBlock {
     if (roomId.length == 0) {
         RCMicLog(@"join rtc room error, roomId is null");
     }
     RCRTCRoomConfig *config = [[RCRTCRoomConfig alloc] init];
     config.roomType= RCRTCRoomTypeLive;
     config.liveType = RCRTCLiveTypeAudio;
+    config.roleType = roleType;
     [[RCRTCEngine sharedInstance] joinRoom:roomId config:config completion:^(RCRTCRoom * _Nullable room, RCRTCCode code) {
        if (code == RCRTCCodeSuccess) {
             successBlock ? successBlock(room) : nil;
@@ -85,36 +86,11 @@
     }];
 }
 
-- (void)subscribeRoomStream:(NSString *)liveUrl success:(void(^)(RCRTCInputStream *stream))successBlock error:(void(^)(RCRTCCode code))errorBlock {
-    if (liveUrl.length == 0) {
-        RCMicLog(@"subscribe room strean error, live url is null");
-    }
-    [[RCRTCEngine sharedInstance] subscribeLiveStream:liveUrl streamType:RCRTCAVStreamTypeAudio completion:^(RCRTCCode desc, RCRTCInputStream * _Nullable inputStream) {
-        if (desc == RCRTCCodeSuccess) {
-            successBlock ? successBlock(inputStream) : nil;
-        } else {
-            RCMicLog(@"subscribe room stream complete with error, code:%ld, liveUrl:%@",(long)desc, liveUrl);
-            errorBlock ? errorBlock(desc) : nil;
-        }
-    }];
-}
-
-- (void)unsubscribeRoomStream:(NSString *)liveUrl success:(void (^)(void))successBlock error:(void (^)(RCRTCCode))errorBlock {
-    [[RCRTCEngine sharedInstance] unsubscribeLiveStream:liveUrl completion:^(BOOL isSuccess, RCRTCCode code) {
-       if (isSuccess) {
-            successBlock ? successBlock() : nil;
-        } else {
-            RCMicLog(@"unsubscribe room stream complete with error, code:%ld, liveUrl:%@",(long)code, liveUrl);
-            errorBlock ? errorBlock(code) : nil;
-        }
-    }];
-}
-
-- (void)subscribeParticipantStreams:(RCRTCRoom *)room streams:(NSArray<RCRTCInputStream *> *)streams success:(void (^)(void))successBlock error:(void (^)(RCRTCCode))errorBlock {
+- (void)subscribeAudioStreams:(RCRTCRoom *)room streams:(NSArray<RCRTCInputStream *> *)streams success:(void (^)(void))successBlock error:(void (^)(RCRTCCode))errorBlock {
     if (!room) {
         RCMicLog(@"subscribe participant streams error, room is null");
     }
-    [room.localUser subscribeStream:nil tinyStreams:streams completion:^(BOOL isSuccess, RCRTCCode desc) {
+    [room.localUser subscribeStream:streams tinyStreams:nil completion:^(BOOL isSuccess, RCRTCCode desc) {
        if (isSuccess) {
             successBlock ? successBlock() : nil;
         } else {
@@ -149,7 +125,7 @@
 }
 
 #pragma mark - RongRTCActivityMonitorDelegate
-- (void)didReportStatForm:(RCRTCStatisticalForm*)form {
+- (void)didReportStatusForm:(RCRTCStatusForm*)form {
     for (id<RCMicRTCActivityMonitorDelegate> delegate in self.rtcMonitorTable.allObjects) {
         if ([delegate respondsToSelector:@selector(didReportStatForm:)]) {
             [delegate didReportStatForm:form];

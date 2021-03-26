@@ -51,23 +51,14 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 }
 
 - (void)descory {
-    
-    if (self.role == RCMicRoleType_Audience && self.liveUrl.length > 0) {
-        __weak typeof(self) weakSelf = self;
-        [[RCMicRTCService sharedService] unsubscribeRoomStream:weakSelf.liveUrl success:^{
-            weakSelf.liveUrl = nil;
-        } error:^(RCRTCCode code) {
-//            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_unsubscribeStream_failed")];
-            RCMicLog(@"descory unsubscribeRoomStream failed RCRTCCode:%ld",(long)code);
-        }];
-    } else {
+    //房间销毁时如果是主播则需要清理麦位相关状态
+    if (self.role != RCMicRoleType_Audience) {
         self.isSpeaking = NO;
         [self setSpeakingState:NO];
         [self giveUpParticipant:^{
         } error:^(RCMicHTTPCode errorCode) {
         }];
     }
-    
     [self.onlineCountTimer invalidate];
     self.onlineCountTimer = nil;
 }
@@ -78,45 +69,29 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 
 #pragma mark - Public method
 - (void)joinMicRoom:(void (^)(void))successBlock imError:(void (^)(void))imErrorBlock rtcError:(void (^)(void))rtcErrorBlock {
-    //主持人：加入 IM 聊天室成功后需要再加入 RTC 房间
-    //观众：只需要加入 IM 聊天室
-    if(self.role == RCMicRoleType_Host) {
-        __weak typeof(self) weakSelf = self;
-        [[RCMicIMService sharedService] joinChatRoom:self.roomInfo.roomId messageCount:ChatroomMessageCount success:^{
-            [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId success:^(RCRTCRoom * _Nonnull room) {
-                weakSelf.room = room;
-                weakSelf.room.delegate = weakSelf;
-                successBlock ? successBlock() : nil;
-            } error:^(RCRTCCode code) {
-                rtcErrorBlock ? rtcErrorBlock() : nil;
-            }];
-        } error:^(RCErrorCode status) {
-            imErrorBlock ? imErrorBlock() : nil;
-        }];
-    } else if(self.role == RCMicRoleType_Audience) {
-        [[RCMicIMService sharedService] joinChatRoom:self.roomInfo.roomId messageCount:ChatroomMessageCount success:^{
+    __weak typeof(self) weakSelf = self;
+    RCRTCLiveRoleType roleType = self.role == RCMicRoleType_Audience ? RCRTCLiveRoleTypeAudience : RCRTCLiveRoleTypeBroadcaster;
+    [[RCMicIMService sharedService] joinChatRoom:self.roomInfo.roomId messageCount:ChatroomMessageCount success:^{
+        [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId roleType:roleType success:^(RCRTCRoom * _Nonnull room) {
+            weakSelf.room = room;
+            weakSelf.room.delegate = weakSelf;
             successBlock ? successBlock() : nil;
-        } error:^(RCErrorCode status) {
-            imErrorBlock ? imErrorBlock() : nil;
+        } error:^(RCRTCCode code) {
+            rtcErrorBlock ? rtcErrorBlock() : nil;
         }];
-    }
+    } error:^(RCErrorCode status) {
+        imErrorBlock ? imErrorBlock() : nil;
+    }];
 }
 
 - (void)quitMicRoom:(void (^)(void))successBlock error:(void (^)(void))errorBlock {
-    __weak typeof(self) weakSelf = self;
-    [[RCMicIMService sharedService] quitChatRoom:self.roomInfo.roomId success:^{
-        //        __strong __typeof(self) strongSelf = weakSelf;
-        //主持人或参会者：退出 IM 聊天室和 RTC 房间
-        //观众：只需要退出聊天室即可
-        if (self.role == RCMicRoleType_Audience) {
+    NSString *roomId = self.roomInfo.roomId;
+    [[RCMicIMService sharedService] quitChatRoom:roomId success:^{
+        [[RCMicRTCService sharedService] leaveRoom:roomId success:^{
             successBlock ? successBlock() : nil;
-        } else {
-            [[RCMicRTCService sharedService] leaveRoom:weakSelf.roomInfo.roomId success:^{
-                successBlock ? successBlock() : nil;
-            } error:^(RCRTCCode code) {
-                errorBlock ? errorBlock() : nil;
-            }];
-        }
+        } error:^(RCRTCCode code) {
+            errorBlock ? errorBlock() : nil;
+        }];
     } error:^(RCErrorCode status) {
         errorBlock ? errorBlock() : nil;
     }];
@@ -452,11 +427,6 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
             speaking = NO;
         }
         [self updateSpeakingState:participantKey speaking:speaking];
-    } else if ([key hasPrefix:RCMicRoomLiveUrlKey]) {//直播合流地址变更
-        if (kvMessage.type == RCChatroomKVNotificationTypeSet) {
-            NSString *liveUrl = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            [self reSubscribeAudioStreamIfNeeded:liveUrl];
-        }
     } else if ([key hasPrefix:RCMicParticipantWaitingKey]) {//排麦人数变更
         if (kvMessage.type == RCChatroomKVNotificationTypeSet) {
             BOOL waiting = [kvMessage.value integerValue] == 1 ? YES : NO;
@@ -528,163 +498,102 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 
 - (void)changeAudienceToParticipant:(RCMicParticipantInfo *)participantInfo {
     __weak typeof(self) weakSelf = self;
-    
-    if (weakSelf.liveUrl.length > 0) {
-        //只有之前成功订阅过直播间合流时才需要先取消订阅
-        [[RCMicRTCService sharedService] unsubscribeRoomStream:weakSelf.liveUrl success:^{
-            //取消成功后需要将 liveUrl 置为 nil
-            weakSelf.liveUrl = nil;
-        } error:^(RCRTCCode code) {
-            //            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_unsubscribeStream_failed")];
-            RCMicLog(@"changeAudienceToParticipant room unsubscribeStream failed RCRTCCode:%ld",(long)code);
-        }];
-        
-    }
-    [weakSelf changeToParticipant];
-    
-}
 
-- (void)changeToParticipant {
-    __weak typeof(self) weakSelf = self;
-    
-    //加入 RTC 房间
-    [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId success:^(RCRTCRoom * _Nonnull room) {
-        weakSelf.room = room;
-        weakSelf.room.delegate = self;
-        //注意：由于此 demo 中用户发言状态通过聊天室 KV 设置时会有消息产生，所以当房间内长时间没有用户手动发送消息时聊天室也不会被销毁
-        //但是如果实际项目中没有使用 KV 相关功能频繁发送消息，就需要在加入成功后开启个定时器，每隔几分钟向房间内发送一条保活消息，防止房间内用户只通过音视频沟通但是 IM 聊天室由于长时间没有消息产生被服务销毁
-        //订阅房间中的音频流
-        NSMutableArray *streamArray = [NSMutableArray array];
-        for (RCRTCRemoteUser *user in room.remoteUsers) {
-            for (RCRTCInputStream *stream in user.remoteStreams) {
-                [streamArray addObject:stream];
-            }
-        }
-        if (streamArray.count > 0) {
-            [[RCMicRTCService sharedService] subscribeParticipantStreams:weakSelf.room streams:streamArray success:^{
-            } error:^(RCRTCCode code) {
-                //加入 RTC 房间后订阅已存在音频流失败，根据应用实际需求决定如何提示用户即可
-                [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
-            }];
-        }
-        
-        //发送自己的音频流
-        [weakSelf publishOrSubscribeAudioStreamWithRoleType:RCMicRoleType_Participant success:^{
-        } error:^{
-            //加入 RTC 房间后发布自己的音频流失败，根据应用实际需求决定如何提示用户即可
-            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_publishStream_failed")];
-        }];
-    } error:^(RCRTCCode code) {
-        [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_joinRTC_failed")];
-    }];
-}
-
-- (void)changeParticipantToAudience {
-    __weak typeof(self) weakSelf = self;
-    //退出 RTC 房间
+    //观众先离开房间
     [[RCMicRTCService sharedService] leaveRoom:self.roomInfo.roomId success:^{
-        //订阅房间中的音频合流
-        [weakSelf publishOrSubscribeAudioStreamWithRoleType:RCMicRoleType_Audience success:^{
-        } error:^{
-            //订阅音频合流失败，根据应用实际需求决定如何提示用户即可
-            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
+        //再以主播身份重新加入 RTC 房间，这里 roleType 传 RCMicRoleType_Participant 或者 RCMicRoleType_Host 效果是一样的，因为 RTC 层只有观众和主播的区分
+        [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId roleType:RCRTCLiveRoleTypeBroadcaster success:^(RCRTCRoom * _Nonnull room) {
+            weakSelf.room = room;
+            weakSelf.room.delegate = self;
+            //注意：由于此 demo 中用户发言状态通过聊天室 KV 设置时会有消息产生，所以当房间内长时间没有用户手动发送消息时聊天室也不会被销毁
+            //但是如果实际项目中没有使用 KV 相关功能频繁发送消息，就需要在加入成功后开启个定时器，每隔几分钟向房间内发送一条保活消息，防止房间内用户只通过音视频沟通但是 IM 聊天室由于长时间没有消息产生被服务销毁
+            //订阅房间中的音频流
+            NSMutableArray *streamArray = [NSMutableArray array];
+            for (RCRTCRemoteUser *user in room.remoteUsers) {
+                for (RCRTCInputStream *stream in user.remoteStreams) {
+                    [streamArray addObject:stream];
+                }
+            }
+            if (streamArray.count > 0) {
+                [[RCMicRTCService sharedService] subscribeAudioStreams:weakSelf.room streams:streamArray success:^{
+                } error:^(RCRTCCode code) {
+                    //加入 RTC 房间后订阅已存在音频流失败，根据应用实际需求决定如何提示用户即可
+                    [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
+                }];
+            }
+            
+            //发送自己的音频流
+            [weakSelf publishOrSubscribeAudioStreamWithRoleType:RCMicRoleType_Participant success:^{
+            } error:^{
+                //加入 RTC 房间后发布自己的音频流失败，根据应用实际需求决定如何提示用户即可
+                [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_publishStream_failed")];
+            }];
+        } error:^(RCRTCCode code) {
+            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_joinRTC_failed")];
         }];
     } error:^(RCRTCCode code) {
         [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_leaveRTC_failed")];
     }];
 }
 
-- (void)reSubscribeAudioStreamIfNeeded:(NSString *)newLiveUrl {
+- (void)changeParticipantToAudience {
+    __weak typeof(self) weakSelf = self;
+    //主播先退出 RTC 房间
+    [[RCMicRTCService sharedService] leaveRoom:self.roomInfo.roomId success:^{
+        //然后以观众身份重新加入 RTC 房间
+        [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId roleType:RCRTCLiveRoleTypeAudience success:^(RCRTCRoom * _Nonnull room) {
+            weakSelf.room = room;
+            room.delegate = weakSelf;
+            //订阅房间中的音频合流
+            [weakSelf publishOrSubscribeAudioStreamWithRoleType:RCMicRoleType_Audience success:^{
+            } error:^{
+                //订阅音频合流失败，根据应用实际需求决定如何提示用户即可
+                [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
+            }];
+        } error:^(RCRTCCode code) {
+            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_joinRTC_failed")];
+        }];
+    } error:^(RCRTCCode code) {
+        [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_leaveRTC_failed")];
+    }];
+}
+
+- (void)reSubscribeAudioStream:(NSArray<RCRTCInputStream*> *)streams {
     __weak typeof(self) weakSelf = self;
     
     if (self.role == RCMicRoleType_Audience) {
-        if (self.liveUrl.length > 0) {
-            if (![self.liveUrl isEqualToString:newLiveUrl]) {
-                //只有之前成功订阅过直播间合流且此次更新后合流地址变更了才需要先取消订阅
-                [[RCMicRTCService sharedService] unsubscribeRoomStream:weakSelf.liveUrl success:^{
-                    weakSelf.liveUrl = nil;
-                } error:^(RCRTCCode code) {
-//                    [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_unsubscribeStream_failed")];
-                    RCMicLog(@"reSubscribeAudioStreamIfNeeded unsubscribeRoomStream failed RCRTCCode:%ld",(long)code);
-                }];
-            }
-        }
-        
-        [self subscribeRoomStreamWithUrl:newLiveUrl success:^{
-        } error:^{
-            //订阅直播间变更后的合流失败，根据应用实际决定如何提示用户
-            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
-        }];
-        
-    }
-}
-
-/// 订阅房间直播合流，liveUrl 存在则直接订阅，否则先从 KV 获取然后订阅
-- (void)subscribeRoomStreamWithUrl:(NSString *)liveUrl success:(void(^)(void))successBlock error:(void(^)(void))errorBlock{
-    __weak typeof(self) weakSelf = self;
-    if (liveUrl) {
-        weakSelf.liveUrl = liveUrl;
-        [[RCMicRTCService sharedService] subscribeRoomStream:liveUrl success:^(RCRTCInputStream * _Nonnull stream) {
-            successBlock ? successBlock() : nil;
-            RCMicMainThread(^{
-                weakSelf.publishOrSubscribeStream ? weakSelf.publishOrSubscribeStream(NO) : nil;
-            })
+        [[RCMicRTCService sharedService] subscribeAudioStreams:self.room streams:streams success:^{
         } error:^(RCRTCCode code) {
-            errorBlock ? errorBlock() : nil;
-        }];
-    } else {
-        [[RCMicIMService sharedService] getRoomLiveUrl:self.roomInfo.roomId success:^(NSString *liveUrl) {
-            weakSelf.liveUrl = liveUrl;
-            [[RCMicRTCService sharedService] subscribeRoomStream:liveUrl success:^(RCRTCInputStream * _Nonnull stream) {
-                successBlock ? successBlock() : nil;
-                RCMicMainThread(^{
-                    weakSelf.publishOrSubscribeStream ? weakSelf.publishOrSubscribeStream(NO) : nil;
-                })
-            } error:^(RCRTCCode code) {
-                if (code == RCRTCCodeHttpRequestError) {
-                    //50012 mediaResultCode:45001 保活15分钟 不做提示
-                    RCMicLog(@"subscribeRoomStream errorCode:%ld",code);
-                }else {
-                    errorBlock ? errorBlock() : nil;
-                }
-            }];
-        } error:^(RCErrorCode errorCode) {
-            if (errorCode != RC_KEY_NOT_EXIST) {
-                errorBlock ? errorBlock() : nil;
-            } else {
-                //聊天室状态值不存在时认为订阅成功，因为房间中没人时 liveUrl 是可能不存在的
-                successBlock ? successBlock() : nil;
-            }
+            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
         }];
     }
 }
 
 - (void)publishOrSubscribeAudioStreamWithRoleType:(RCMicRoleType)roleType success:(void (^)(void))successBlock error:(void (^)(void))errorBlock {
     __weak typeof(self) weakSelf = self;
-    //麦位上：直接发布自己的音频流
-    //观众：从聊天室 KV 中获取当前房间的直播流地址并订阅
+    //主播：直接发布自己的音频流
     if (roleType == RCMicRoleType_Host || roleType == RCMicRoleType_Participant) {
         [[RCMicRTCService sharedService] publishAudioStream:self.room success:^(RCRTCLiveInfo * _Nonnull liveInfo) {
-            //只有当前房间内没有发布过 liveUrl 或者最新发布的和上一次的不同时才需要再次设置 KV
-            if (weakSelf.liveUrl.length == 0 ||![weakSelf.liveUrl isEqualToString:liveInfo.liveUrl]) {
-                
-                [[RCMicIMService sharedService] setRoomLiveUrl:weakSelf.roomInfo.roomId url:liveInfo.liveUrl success:^{
-                    successBlock ? successBlock() : nil;
-                } error:^(RCErrorCode errorCode) {
-                    //这里设置 KV 如果失败可根据应用需求决定是否要重试
-                    errorBlock ? errorBlock() : nil;
-                }];
-            } else {
-                successBlock ? successBlock() : nil;
-            }
+            successBlock ? successBlock() : nil;
             RCMicMainThread(^{
-                weakSelf.publishOrSubscribeStream ? weakSelf.publishOrSubscribeStream(YES) : nil;
+                //主播发布自己的流成功后才认为成功上麦
+                weakSelf.didHoldOrGiveUpMic ? weakSelf.didHoldOrGiveUpMic(YES) : nil;
             })
         } error:^(RCRTCCode code) {
             errorBlock ? errorBlock() : nil;
         }];
     } else if (roleType == RCMicRoleType_Audience) {
-        [self subscribeRoomStreamWithUrl:nil success:successBlock error:errorBlock];
+        //观众：从当前房间中获取 live 合流并订阅
+        NSArray *liveStreams = [self.room getLiveStreams];
+        if (liveStreams.count) {
+            [[RCMicRTCService sharedService] subscribeAudioStreams:self.room streams:liveStreams success:^{
+                successBlock ? successBlock() : nil;
+            } error:^(RCRTCCode code) {
+                errorBlock ? errorBlock() : nil;
+            }];
+        }
+        //观众无论是否成功订阅直播合流都认为成功下麦
+        weakSelf.didHoldOrGiveUpMic ? weakSelf.didHoldOrGiveUpMic(NO) : nil;
     }
 }
 
@@ -723,7 +632,7 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 }
 
 #pragma mark - 直播延迟相关
-- (void)updateDebugInfo:(RCRTCStatisticalForm *)form {
+- (void)updateDebugInfo:(RCRTCStatusForm *)form {
     NSMutableArray *bitrateArray = [NSMutableArray new];
     NSMutableArray *localDIArray = [NSMutableArray array];
     [localDIArray addObject:@[RCMicLocalizedNamed(@"chat_data_excel_tunnelname"),RCMicLocalizedNamed(@"chat_data_excel_kbps"),RCMicLocalizedNamed(@"chat_data_excel_delay")]];
@@ -760,7 +669,7 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
     
     for (RCRTCStreamStat* stat in form.recvStats) {
         RCMicChatDataInfoModel *tmpMemberModel = [[RCMicChatDataInfoModel alloc] init];
-        tmpMemberModel.userName = [RCRTCStatisticalForm fetchUserIdFromTrackId:stat.trackId];
+        tmpMemberModel.userName = [RCRTCStatusForm fetchUserIdFromTrackId:stat.trackId];
         if ([stat.mediaType isEqualToString:RongRTCMediaTypeAudio]) {
             tmpMemberModel.tunnelName = RCMicLocalizedNamed(@"chat_data_excel_audio_receive");
             tmpMemberModel.codec = stat.codecName.length > 0 ? stat.codecName : @"--";
@@ -803,7 +712,7 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 }
 
 #pragma mark - RCMicRTCActivityMonitorDelegate
-- (void)didReportStatForm:(RCRTCStatisticalForm *)form {
+- (void)didReportStatForm:(RCRTCStatusForm *)form {
     //当前用户在麦位上时更新所在麦位发言状态
     if (self.currentParticipantInfo) {
         //遍历所有发送的音视频流的状态，如果是音频流，音量 > 1 则需要设置当前所处麦位的发言状态
@@ -835,11 +744,16 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 #pragma mark - RCRTCRoomEventDelegate
 - (void)didPublishStreams:(NSArray <RCRTCInputStream *>*)streams {
     __weak typeof(self) weakSelf = self;
-    [[RCMicRTCService sharedService] subscribeParticipantStreams:self.room streams:streams success:^{
+    [[RCMicRTCService sharedService] subscribeAudioStreams:self.room streams:streams success:^{
     } error:^(RCRTCCode code) {
         //收到有人发布的音频流后订阅失败，根据实际需求提示用户
         [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
     }];
+}
+
+//RTC 房间直播合流变更时观众需要重新订阅
+- (void)didPublishLiveStreams:(NSArray<RCRTCInputStream *> *)streams {
+    [self reSubscribeAudioStream:streams];
 }
 
 #pragma mark - RCChatRoomKVStatusChangeDelegate

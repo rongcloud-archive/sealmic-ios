@@ -195,7 +195,6 @@
 "room_publishStream_failed"="Publish stream failed";
 "room_getParticipantInfo_failed"="Get mic info failed";
 "room_subscribeStream_failed"="Subscribe stream failed";
-"room_unsubscribeStream_failed"="Unsubscribe stream failed";
 "room_setSpeakingState_failed"="Set speaking state failed";
 "room_publishOrSubscribeStream_failed"="Publish or subscribe stream failed";
 

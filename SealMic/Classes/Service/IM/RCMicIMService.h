@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <RongIMLib/RCIMClient.h>
+#import <RongIMLibCore/RongIMLibCore.h>
+#import <RongChatRoom/RongChatRoom.h>
 #import "RCMicParticipantInfo.h"
 #import "RCMicGiftMessage.h"
 #import "RCMicTransferHostMessage.h"

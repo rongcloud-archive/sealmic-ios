@@ -6,7 +6,7 @@
 //  Copyright © 2020 rongcloud. All rights reserved.
 //
 
-#import <RongIMLib/RongIMLib.h>
+#import <RongIMLibCore/RongIMLibCore.h>
 
 NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, RCMicTransferHostMessageType) {

@@ -60,6 +60,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
     [self addSubviews];
     [self addConstraints];
     [self joinMicRoom];
@@ -84,6 +85,7 @@
 }
 
 - (void)dealloc {
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
     //释放资源
     [_viewModel descory];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -106,14 +108,23 @@
     [_viewModel setParticipantChanged:^(NSArray<NSString *> * _Nonnull keys) {
         [weakSelf.participantsArea updateCollectionViewWithKeys:keys];
     }];
-    //当前用户发布或订阅了直播间合流（发布表明在麦位，订阅表明不在麦位）
-    [_viewModel setPublishOrSubscribeStream:^(BOOL isPublish) {
-       //这里实际角色可能是主持人，但是主持人和参会者底部 toolbar 展示的内容一致，所以除了观众都可以认为是参会者
-        RCMicRoleType role = isPublish ? RCMicRoleType_Participant : RCMicRoleType_Audience;
-        [weakSelf.customToolBar updateWithRoleType:role];
-        //每次角色转换需要重新设置扬声器状态
-        RCMicSpeakerState state = weakSelf.viewModel.useSpeaker ? RCMicSpeakerStateOpen : RCMicSpeakerStateClose;
-        [weakSelf setSpeakerState:state];
+    //当前用户上下麦
+    [_viewModel setDidHoldOrGiveUpMic:^(BOOL isHold) {
+        //这里实际角色可能是主持人，但是主持人和参会者底部 toolbar 展示的内容一致，所以除了观众都可以认为是参会者
+         RCMicRoleType role = isHold ? RCMicRoleType_Participant : RCMicRoleType_Audience;
+         [weakSelf.customToolBar updateWithRoleType:role];
+         //每次角色转换后需要重新设置扬声器状态（因为 RTC 上下麦过程中相关状态被重置了）
+         RCMicSpeakerState speakerState = weakSelf.viewModel.useSpeaker ? RCMicSpeakerStateOpen : RCMicSpeakerStateClose;
+         [weakSelf setSpeakerState:speakerState];
+        if (isHold) {
+            //每次角色上麦后需要重新设置麦克风状态（因为有可能在 RTC 上麦流程走完之前就设置过麦克风状态了，而 RTC 上麦流程中会重置麦克风状态），下麦不需要处理
+            RCMicMicrophoneState micState = weakSelf.viewModel.useMicrophone ? RCMicMicrophoneStateNormal : RCMicMicrophoneStateSilent;
+            [weakSelf setMicrophoneState:micState];
+        } else {
+            //每次角色下麦后需要将当前伴音状态重置
+            weakSelf.currentBgSoundIndexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+            [[RCMicRTCService sharedService] stopMixingMusic];
+        }
     }];
     //直播间延迟更新
     [_viewModel setDelayInfoChanged:^(NSInteger delay) {
@@ -238,12 +249,20 @@
 - (void)checkRoomStatus {
     //加入房间完成并且 KV 同步完成后才能开始加载初始房间数据
     if (self.joinRoomSuccess && self.kvSyncSuccess) {
-        [self loadDataAndPublishAudioStream];
+        [self loadDataAndPrepareAudioStream];
     }
 }
 
-- (void)loadDataAndPublishAudioStream {
+- (void)loadDataAndPrepareAudioStream {
     __weak typeof(self) weakSelf = self;
+    //发布或订阅音频流，失败后根据应用实际需求处理 UI 即可
+    [self.viewModel publishOrSubscribeAudioStream:^{
+    } error:^{
+        RCMicMainThread(^{
+            [RCMicActiveWheel showPromptHUDAddedTo:weakSelf.view text:RCMicLocalizedNamed(@"room_publishOrSubscribeStream_failed")];
+        })
+    }];
+    
     //加载麦位数据
     [self.viewModel loadAllParticipantViewModel:^{
         RCMicMainThread(^{
@@ -254,14 +273,6 @@
             [RCMicActiveWheel showPromptHUDAddedTo:RCMicKeyWindow text:RCMicLocalizedNamed(@"room_getParticipantInfo_failed")];
             //进入房间获取麦位初始信息失败后退出聊天室
             [weakSelf backAction];
-        })
-    }];
-    
-    //发布或订阅音频流，失败后根据应用实际需求处理 UI 即可
-    [self.viewModel publishOrSubscribeAudioStream:^{
-    } error:^{
-        RCMicMainThread(^{
-            [RCMicActiveWheel showPromptHUDAddedTo:weakSelf.view text:RCMicLocalizedNamed(@"room_publishOrSubscribeStream_failed")];
         })
     }];
     

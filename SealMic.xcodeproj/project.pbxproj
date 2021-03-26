@@ -999,6 +999,7 @@
 				77359DAD2474E303007A4099 /* Resources */,
 				CE011A86A83C5C19DE3B6D84 /* [CP] Embed Pods Frameworks */,
 				7CE5BD994D33B1E2BB8D13CD /* [CP] Copy Pods Resources */,
+				772DACF625E78FE3009AAB03 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1063,6 +1064,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		772DACF625E78FE3009AAB03 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n# skip if we run in debug\n\n# 如果本地出包，需要打开 export Need_Extract_Arch=\"true\"\n#export Need_Extract_Arch=\"true\"\n\necho \"---------- Need_Extract_Arch = ${Need_Extract_Arch}\"\n\nif [ ${Need_Extract_Arch} = \"true\" ]; then\n    sh extract_architectures.sh\nfi\n";
+		};
 		7CE5BD994D33B1E2BB8D13CD /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

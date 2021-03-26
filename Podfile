@@ -13,5 +13,6 @@ target 'SealMic' do
   pod 'MJRefresh', '3.4.3'
   pod 'MBProgressHUD', '1.2.0'
   pod 'Bugly', '2.5.5'
-pod 'RongRTCLib', '4.0.4.1'
+  pod 'RongRTCLib', '5.1.0'
+  pod 'RongCloudIM/ChatRoom', '5.1.0.1'
 end

@@ -17,10 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *@param form 统计表单对象
  */
-- (void)didReportStatForm:(RCRTCStatisticalForm *)form;
+- (void)didReportStatForm:(RCRTCStatusForm *)form;
 @end
 
-@interface RCMicRTCService : NSObject<RCRTCActivityMonitorDelegate>
+@interface RCMicRTCService : NSObject<RCRTCStatusReportDelegate>
 
 /*!
 单例
@@ -42,8 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
  * @param errorBlock 失败回调，携带相关错误码
  */
 - (void)joinRoom:(NSString *)roomId
-            success:(void(^)(RCRTCRoom *room))successBlock
-              error:(void(^)(RCRTCCode code))errorBlock;
+        roleType:(RCRTCLiveRoleType)roleType
+         success:(void(^)(RCRTCRoom *room))successBlock
+           error:(void(^)(RCRTCCode code))errorBlock;
 
 /**
  * 退出 RTC 房间
@@ -68,28 +69,6 @@ NS_ASSUME_NONNULL_BEGIN
                      error:(void(^)(RCRTCCode code))errorBlock;
 
 /**
- * 观众订阅 RTC 房间中主播的合流
- *
- * @param liveUrl 需要订阅的直播的 url
- * @param successBlock 成功回调，携带获取的 RongRTCLiveAVInputStream
- * @param errorBlock 失败回调，携带相关错误码
- */
-- (void)subscribeRoomStream:(NSString *)liveUrl
-                    success:(void(^)(RCRTCInputStream *stream))successBlock
-                      error:(void(^)(RCRTCCode code))errorBlock;
-
-/**
- * 观众取消订阅 RTC 房间中主播的合流
- *
- * @param liveUrl 要取消订阅的 url，传 nil 会自动取消最后一次 subscribeRoomStream 调用传入的 liveUrl
- * @param successBlock 成功回调
- * @param errorBlock 失败回调，携带相关错误码
- */
-- (void)unsubscribeRoomStream:(nullable NSString *)liveUrl
-                      success:(void(^)(void))successBlock
-                        error:(void(^)(RCRTCCode code))errorBlock;
-
-/**
  * 订阅某个房间中指定音频流
  *
  * @param room 需要订阅的房间
@@ -97,10 +76,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @param successBlock 成功回调
  * @param errorBlock 失败回调，携带相关错误码
  */
-- (void)subscribeParticipantStreams:(RCRTCRoom *)room
-                            streams:(NSArray<RCRTCInputStream *> *)streams
-                            success:(void (^)(void))successBlock
-                              error:(void (^)(RCRTCCode code))errorBlock;
+- (void)subscribeAudioStreams:(RCRTCRoom *)room
+                      streams:(NSArray<RCRTCInputStream *> *)streams
+                      success:(void (^)(void))successBlock
+                        error:(void (^)(RCRTCCode code))errorBlock;
 
 /**
  * 设置麦克风是否可用

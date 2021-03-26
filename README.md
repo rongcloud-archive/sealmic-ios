@@ -1,27 +1,31 @@
 ## 目录结构
-* [项目说明](#1)  
-* [前期准备](#2)  
-* [代码运行](#3)
-* [项目实体目录说明](#4)
+* [注意事项](#1)
+* [项目说明](#2)  
+* [前期准备](#3)  
+* [代码运行](#4)
+* [项目实体目录说明](#5)
 * [详细开发文档](./Documents/开发文档.md)
 
-<h2 id='1'>项目说明</h2>
+<h2 id='1'>注意事项</h2>
+* 1.2.0 及之后版本与之前版本不兼容
+
+<h2 id='2'>项目说明</h2>
 
 * 此项目是基于融云所提供的 IM、RTC 相关能力所实现的语音聊天室场景下的示例 demo
 * 整体架构：![整体架构](./Documents/Assets/architecture.png)
 
-<h2 id='2'>前期准备</h2>
+<h2 id='3'>前期准备</h2>
 
 * 需要到融云开发者后台注册并创建应用：[融云官网](https://www.rongcloud.cn)
 * 创建应用后用获取到的 appkey 填到`RCMicMacro`文件中的`#define APPKey`对应位置
 * 参考 [demoServer](https://github.com/rongcloud/sealmic-server.git) 源码部署 SealMic 相关服务，部署完成后将服务地址填到`RCMicMacro `文件中的`#define BASE_URL`对应位置
 
-<h2 id='3'>代码运行</h2>
+<h2 id='4'>代码运行</h2>
 
 * 进入到 Podfile 同级目录，终端执行`pod install`安装项目所依赖的第三方库
 * 上述命令执行完毕后打开 SealMic.xcworkspace 项目即可运行
 
-<h2 id='4'>项目实体目录说明</h2>
+<h2 id='5'>项目实体目录说明</h2>
 
 | 目录 | 子目录 | 子目录 | 说明 |
 |:---:|:---:|:---:|:---:|

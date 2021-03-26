@@ -197,7 +197,6 @@
 "room_publishStream_failed"="发布音频流失败";
 "room_getParticipantInfo_failed"="获取麦位信息失败";
 "room_subscribeStream_failed"="订阅音频流失败";
-"room_unsubscribeStream_failed"="取消订阅音频流失败";
 "room_setSpeakingState_failed"="同步发言状态失败";
 "room_publishOrSubscribeStream_failed"="发布或订阅音频流失败";
 

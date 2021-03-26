@@ -34,23 +34,23 @@ static RCMicIMService *imService = nil;
 - (void)initRCIM {
     //私有云导航配置
     if (Navi_URL.length > 0) {
-        [[RCIMClient sharedRCIMClient] setServerInfo:Navi_URL fileServer:nil];
+        [[RCCoreClient sharedCoreClient] setServerInfo:Navi_URL fileServer:nil];
     }
-    [[RCIMClient sharedRCIMClient] setLogLevel:RC_Log_Level_Verbose];
-    [[RCIMClient sharedRCIMClient] initWithAppKey:APPKey];
-    [[RCIMClient sharedRCIMClient] setRCConnectionStatusChangeDelegate:self];
-    [[RCIMClient sharedRCIMClient] setReceiveMessageDelegate:self object:nil];
-    [[RCIMClient sharedRCIMClient] setRCChatRoomKVStatusChangeDelegate:self];
+    [[RCCoreClient sharedCoreClient] setLogLevel:RC_Log_Level_Verbose];
+    [[RCCoreClient sharedCoreClient] initWithAppKey:APPKey];
+    [[RCCoreClient sharedCoreClient] setRCConnectionStatusChangeDelegate:self];
+    [[RCCoreClient sharedCoreClient] setReceiveMessageDelegate:self object:nil];
+    [[RCChatRoomClient sharedChatRoomClient] setRCChatRoomKVStatusChangeDelegate:self];
     //注册自定义消息
-    [[RCIMClient sharedRCIMClient] registerMessageType:[RCMicGiftMessage class]];
-    [[RCIMClient sharedRCIMClient] registerMessageType:[RCMicTransferHostMessage class]];
-    [[RCIMClient sharedRCIMClient] registerMessageType:[RCMicTakeOverHostMessage class]];
-    [[RCIMClient sharedRCIMClient] registerMessageType:[RCMicKickOutMessage class]];
-    [[RCIMClient sharedRCIMClient] registerMessageType:[RCMicBroadcastGiftMessage class]];
+    [[RCCoreClient sharedCoreClient] registerMessageType:[RCMicGiftMessage class]];
+    [[RCCoreClient sharedCoreClient] registerMessageType:[RCMicTransferHostMessage class]];
+    [[RCCoreClient sharedCoreClient] registerMessageType:[RCMicTakeOverHostMessage class]];
+    [[RCCoreClient sharedCoreClient] registerMessageType:[RCMicKickOutMessage class]];
+    [[RCCoreClient sharedCoreClient] registerMessageType:[RCMicBroadcastGiftMessage class]];
 }
 
 - (void)connectWithToken:(NSString *)token {
-    [[RCIMClient sharedRCIMClient] connectWithToken:token dbOpened:^(RCDBErrorCode code) {
+    [[RCCoreClient sharedCoreClient] connectWithToken:token dbOpened:^(RCDBErrorCode code) {
     } success:^(NSString *userId) {
     } error:^(RCConnectErrorCode errorCode) {
         RCMicLog(@"connect im complete with error, code:%ld",(long)errorCode);
@@ -58,7 +58,7 @@ static RCMicIMService *imService = nil;
 }
 
 - (void)disconnect {
-    [[RCIMClient sharedRCIMClient] disconnect:NO];
+    [[RCCoreClient sharedCoreClient] disconnect:NO];
 }
 #pragma mark - Public method
 - (void)addIMConnectionStatusChangeDelegate:(id<RCMicIMConnectionStatusChangeDelegate>)delegate {
@@ -77,7 +77,7 @@ static RCMicIMService *imService = nil;
     if (roomId.length == 0) {
         RCMicLog(@"load latest message error, roomId is null");
     }
-    return [[RCIMClient sharedRCIMClient] getLatestMessages:ConversationType_CHATROOM targetId:roomId count:(int)count];
+    return [[RCCoreClient sharedCoreClient] getLatestMessages:ConversationType_CHATROOM targetId:roomId count:(int)count];
 }
 
 - (void)sendMessage:(RCConversationType)conversationType targetId:(NSString *)targetId content:(RCMessageContent *)content pushContent:(NSString *)pushContent pushData:(NSString *)pushData success:(void (^)(RCMessage *))successBlock error:(void (^)(RCErrorCode, RCMessage *))errorBlock {
@@ -86,18 +86,18 @@ static RCMicIMService *imService = nil;
     }
     
     content.senderUserInfo = (RCUserInfo *)[RCMicAppService sharedService].currentUser.userInfo;
-    [[RCIMClient sharedRCIMClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:pushData success:^(long messageId) {
-        RCMessage *message = [[RCIMClient sharedRCIMClient] getMessage:messageId];
+    [[RCCoreClient sharedCoreClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:pushData success:^(long messageId) {
+        RCMessage *message = [[RCCoreClient sharedCoreClient] getMessage:messageId];
         successBlock ? successBlock(message) : nil;
     } error:^(RCErrorCode nErrorCode, long messageId) {
-        RCMicLog(@"send message complete with error, code:%ld", (long)nErrorCode);
-        RCMessage *message = [[RCIMClient sharedRCIMClient] getMessage:messageId];
+        RCMicLog(@"send message complete with error, code:%ld, conversationType:%ld, targetId:%@, content:%@, pushContent:%@, pushData:%@", (long)nErrorCode, (long)conversationType, targetId, content, pushContent, pushData);
+        RCMessage *message = [[RCCoreClient sharedCoreClient] getMessage:messageId];
         errorBlock ? errorBlock(nErrorCode, message) : nil;
     }];
 }
 
 - (void)recallMessage:(RCMessage *)message success:(void (^)(void))successBlock error:(void (^)(RCErrorCode))errorBlock {
-    [[RCIMClient sharedRCIMClient] recallMessage:message success:^(long messageId) {
+    [[RCCoreClient sharedCoreClient] recallMessage:message success:^(long messageId) {
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode errorcode) {
         RCMicLog(@"recall message complete with error, code:%ld, message:%@",(long)errorcode, message);
@@ -106,14 +106,14 @@ static RCMicIMService *imService = nil;
 }
 
 - (BOOL)deleteMessages:(NSArray<NSNumber *> *)messageIds {
-    return [[RCIMClient sharedRCIMClient] deleteMessages:messageIds];
+    return [[RCCoreClient sharedCoreClient] deleteMessages:messageIds];
 }
 
 - (void)joinChatRoom:(NSString *)roomId messageCount:(NSInteger)messageCount success:(void (^)(void))successBlock error:(void (^)(RCErrorCode))errorBlock {
     if (roomId.length == 0) {
         RCMicLog(@"join im chatroom error, targetId is null");
     }
-    [[RCIMClient sharedRCIMClient] joinChatRoom:roomId messageCount:(int)messageCount success:^{
+    [[RCChatRoomClient sharedChatRoomClient] joinChatRoom:roomId messageCount:(int)messageCount success:^{
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode status) {
         RCMicLog(@"join chat room error, code:%ld, roomId:%@",(long)status, roomId);
@@ -125,7 +125,7 @@ static RCMicIMService *imService = nil;
     if (roomId.length == 0) {
         RCMicLog(@"quit chatroom error, roomId is null");
     }
-    [[RCIMClient sharedRCIMClient] quitChatRoom:roomId success:^{
+    [[RCChatRoomClient sharedChatRoomClient] quitChatRoom:roomId success:^{
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode status) {
         RCMicLog(@"quit chatroom complete with error, code:%ld, roomId:%@",(long)status, roomId);
@@ -137,7 +137,7 @@ static RCMicIMService *imService = nil;
     if (roomId.length == 0) {
         RCMicLog(@"get chatroom user count error, roomId is null");
     }
-    [[RCIMClient sharedRCIMClient] getChatRoomInfo:roomId count:0 order:RC_ChatRoom_Member_Asc success:^(RCChatRoomInfo *chatRoomInfo) {
+    [[RCChatRoomClient sharedChatRoomClient] getChatRoomInfo:roomId count:0 order:RC_ChatRoom_Member_Asc success:^(RCChatRoomInfo *chatRoomInfo) {
         successBlock ? successBlock(chatRoomInfo.totalMemberCount) : nil;
     } error:^(RCErrorCode status) {
         RCMicLog(@"get chatroom user count complete with error, code:%ld, roomId:%@",(long)status, roomId);
@@ -149,7 +149,7 @@ static RCMicIMService *imService = nil;
     if (roomId.length == 0) {
         RCMicLog(@"get room live url error, roomId is null");
     }
-    [[RCIMClient sharedRCIMClient] getChatRoomEntry:roomId key:RCMicRoomLiveUrlKey success:^(NSDictionary *entry) {
+    [[RCChatRoomClient sharedChatRoomClient] getChatRoomEntry:roomId key:RCMicRoomLiveUrlKey success:^(NSDictionary *entry) {
         successBlock ? successBlock(entry[RCMicRoomLiveUrlKey]) : nil;
     } error:^(RCErrorCode nErrorCode) {
         RCMicLog(@"get room live url complete with error, code:%ld, roomId:%@, key:%@", (long)nErrorCode, roomId, RCMicRoomLiveUrlKey);
@@ -161,7 +161,7 @@ static RCMicIMService *imService = nil;
     if (roomId.length == 0 || liveUrl.length == 0) {
         RCMicLog(@"set room live url error, roomId is null");
     }
-    [[RCIMClient sharedRCIMClient] forceSetChatRoomEntry:roomId key:RCMicRoomLiveUrlKey value:liveUrl sendNotification:YES autoDelete:NO notificationExtra:nil success:^{
+    [[RCChatRoomClient sharedChatRoomClient] forceSetChatRoomEntry:roomId key:RCMicRoomLiveUrlKey value:liveUrl sendNotification:YES autoDelete:NO notificationExtra:nil success:^{
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode nErrorCode) {
         RCMicLog(@"set room live url complete with error, code:%ld, roomId:%@, liveUrl:%@",(long)nErrorCode, roomId, liveUrl);
@@ -173,7 +173,7 @@ static RCMicIMService *imService = nil;
     if (roomId.length == 0) {
         RCMicLog(@"get all participant info error, roomId is null");
     }
-    [[RCIMClient sharedRCIMClient] getAllChatRoomEntries:roomId success:^(NSDictionary *entry) {
+    [[RCChatRoomClient sharedChatRoomClient] getAllChatRoomEntries:roomId success:^(NSDictionary *entry) {
         successBlock ? successBlock([self generateParticipantInfoWithDitc:entry]) : nil;
     } error:^(RCErrorCode nErrorCode) {
         RCMicLog(@"get all participant info complete with error, code:%ld, roomId:%@",(long)nErrorCode, roomId);
@@ -189,7 +189,7 @@ static RCMicIMService *imService = nil;
     NSDictionary *jsonDict = @{RCMicParticipantSpeakingKey:speaking, RCMicParticipantSpeakingPositionKey:@(position)};
     NSString *key = [NSString stringWithFormat:@"%@%ld",RCMicParticipantSpeakingEntryKey,(long)position];
     NSString *value = [[NSString alloc] initWithData:[RCMicUtil dataWithDictionary:jsonDict] encoding:NSUTF8StringEncoding];
-    [[RCIMClient sharedRCIMClient] forceSetChatRoomEntry:roomId key:key value:value sendNotification:YES autoDelete:YES notificationExtra:nil success:^{
+    [[RCChatRoomClient sharedChatRoomClient] forceSetChatRoomEntry:roomId key:key value:value sendNotification:YES autoDelete:YES notificationExtra:nil success:^{
         successBlock ? successBlock() : nil;
     } error:^(RCErrorCode nErrorCode) {
         RCMicLog(@"set speaking state complete with error, code:%ld, roomId:%@, key:%@, value:%@",(long)nErrorCode, roomId, key, value);
@@ -201,7 +201,7 @@ static RCMicIMService *imService = nil;
     if (roomId.length == 0) {
         RCMicLog(@"get participant waiting state error, roomId is null");
     }
-    [[RCIMClient sharedRCIMClient] getChatRoomEntry:roomId key:RCMicParticipantWaitingKey success:^(NSDictionary *entry) {
+    [[RCChatRoomClient sharedChatRoomClient] getChatRoomEntry:roomId key:RCMicParticipantWaitingKey success:^(NSDictionary *entry) {
         BOOL waiting = [entry[RCMicParticipantWaitingKey] integerValue] == 1 ? YES : NO;
         successBlock ? successBlock(waiting) : nil;
     } error:^(RCErrorCode nErrorCode) {
@@ -259,7 +259,7 @@ static RCMicIMService *imService = nil;
 }
 
 - (void)onMessageRecalled:(long)messageId {
-    RCMessage *message = [[RCIMClient sharedRCIMClient] getMessage:messageId];
+    RCMessage *message = [[RCCoreClient sharedCoreClient] getMessage:messageId];
     [[NSNotificationCenter defaultCenter] postNotificationName:RCMicRecallMessageNotification object:nil userInfo:@{@"message":message}];
 }
 

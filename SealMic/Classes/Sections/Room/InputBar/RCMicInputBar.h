@@ -9,7 +9,7 @@
 #import "RCMicEmojiBoardView.h"
 #import <CoreLocation/CoreLocation.h>
 #import <Foundation/Foundation.h>
-#import <RongIMLib/RongIMLib.h>
+#import <RongIMLibCore/RongIMLibCore.h>
 #import <UIKit/UIKit.h>
 
 /*!

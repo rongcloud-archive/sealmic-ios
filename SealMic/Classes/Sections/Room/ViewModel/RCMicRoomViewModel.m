@@ -501,38 +501,38 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
 
     //观众先离开房间
     [[RCMicRTCService sharedService] leaveRoom:self.roomInfo.roomId success:^{
-        //再以主播身份重新加入 RTC 房间，这里 roleType 传 RCMicRoleType_Participant 或者 RCMicRoleType_Host 效果是一样的，因为 RTC 层只有观众和主播的区分
-        [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId roleType:RCRTCLiveRoleTypeBroadcaster success:^(RCRTCRoom * _Nonnull room) {
-            weakSelf.room = room;
-            weakSelf.room.delegate = self;
-            //注意：由于此 demo 中用户发言状态通过聊天室 KV 设置时会有消息产生，所以当房间内长时间没有用户手动发送消息时聊天室也不会被销毁
-            //但是如果实际项目中没有使用 KV 相关功能频繁发送消息，就需要在加入成功后开启个定时器，每隔几分钟向房间内发送一条保活消息，防止房间内用户只通过音视频沟通但是 IM 聊天室由于长时间没有消息产生被服务销毁
-            //订阅房间中的音频流
-            NSMutableArray *streamArray = [NSMutableArray array];
-            for (RCRTCRemoteUser *user in room.remoteUsers) {
-                for (RCRTCInputStream *stream in user.remoteStreams) {
-                    [streamArray addObject:stream];
-                }
-            }
-            if (streamArray.count > 0) {
-                [[RCMicRTCService sharedService] subscribeAudioStreams:weakSelf.room streams:streamArray success:^{
-                } error:^(RCRTCCode code) {
-                    //加入 RTC 房间后订阅已存在音频流失败，根据应用实际需求决定如何提示用户即可
-                    [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
-                }];
-            }
-            
-            //发送自己的音频流
-            [weakSelf publishOrSubscribeAudioStreamWithRoleType:RCMicRoleType_Participant success:^{
-            } error:^{
-                //加入 RTC 房间后发布自己的音频流失败，根据应用实际需求决定如何提示用户即可
-                [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_publishStream_failed")];
-            }];
-        } error:^(RCRTCCode code) {
-            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_joinRTC_failed")];
-        }];
     } error:^(RCRTCCode code) {
         [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_leaveRTC_failed")];
+    }];
+    //再以主播身份重新加入 RTC 房间，这里 roleType 传 RCMicRoleType_Participant 或者 RCMicRoleType_Host 效果是一样的，因为 RTC 层只有观众和主播的区分
+    [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId roleType:RCRTCLiveRoleTypeBroadcaster success:^(RCRTCRoom * _Nonnull room) {
+        weakSelf.room = room;
+        weakSelf.room.delegate = self;
+        //注意：由于此 demo 中用户发言状态通过聊天室 KV 设置时会有消息产生，所以当房间内长时间没有用户手动发送消息时聊天室也不会被销毁
+        //但是如果实际项目中没有使用 KV 相关功能频繁发送消息，就需要在加入成功后开启个定时器，每隔几分钟向房间内发送一条保活消息，防止房间内用户只通过音视频沟通但是 IM 聊天室由于长时间没有消息产生被服务销毁
+        //订阅房间中的音频流
+        NSMutableArray *streamArray = [NSMutableArray array];
+        for (RCRTCRemoteUser *user in room.remoteUsers) {
+            for (RCRTCInputStream *stream in user.remoteStreams) {
+                [streamArray addObject:stream];
+            }
+        }
+        if (streamArray.count > 0) {
+            [[RCMicRTCService sharedService] subscribeAudioStreams:weakSelf.room streams:streamArray success:^{
+            } error:^(RCRTCCode code) {
+                //加入 RTC 房间后订阅已存在音频流失败，根据应用实际需求决定如何提示用户即可
+                [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
+            }];
+        }
+        
+        //发送自己的音频流
+        [weakSelf publishOrSubscribeAudioStreamWithRoleType:RCMicRoleType_Participant success:^{
+        } error:^{
+            //加入 RTC 房间后发布自己的音频流失败，根据应用实际需求决定如何提示用户即可
+            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_publishStream_failed")];
+        }];
+    } error:^(RCRTCCode code) {
+        [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_joinRTC_failed")];
     }];
 }
 
@@ -540,21 +540,21 @@ typedef NS_ENUM(NSInteger, ParticipantChangeType) {
     __weak typeof(self) weakSelf = self;
     //主播先退出 RTC 房间
     [[RCMicRTCService sharedService] leaveRoom:self.roomInfo.roomId success:^{
-        //然后以观众身份重新加入 RTC 房间
-        [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId roleType:RCRTCLiveRoleTypeAudience success:^(RCRTCRoom * _Nonnull room) {
-            weakSelf.room = room;
-            room.delegate = weakSelf;
-            //订阅房间中的音频合流
-            [weakSelf publishOrSubscribeAudioStreamWithRoleType:RCMicRoleType_Audience success:^{
-            } error:^{
-                //订阅音频合流失败，根据应用实际需求决定如何提示用户即可
-                [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
-            }];
-        } error:^(RCRTCCode code) {
-            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_joinRTC_failed")];
-        }];
     } error:^(RCRTCCode code) {
         [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_leaveRTC_failed")];
+    }];
+    //然后以观众身份重新加入 RTC 房间
+    [[RCMicRTCService sharedService] joinRoom:weakSelf.roomInfo.roomId roleType:RCRTCLiveRoleTypeAudience success:^(RCRTCRoom * _Nonnull room) {
+        weakSelf.room = room;
+        room.delegate = weakSelf;
+        //订阅房间中的音频合流
+        [weakSelf publishOrSubscribeAudioStreamWithRoleType:RCMicRoleType_Audience success:^{
+        } error:^{
+            //订阅音频合流失败，根据应用实际需求决定如何提示用户即可
+            [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_subscribeStream_failed")];
+        }];
+    } error:^(RCRTCCode code) {
+        [weakSelf showErrorTip:RCMicLocalizedNamed(@"room_joinRTC_failed")];
     }];
 }
 
